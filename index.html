@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html class="" lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<meta charset="utf-8">
+		<title>Quick Undermine tutorial</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="Finding relic data from Undermine .asset files">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.5/cropper.min.css">
+		<link rel="stylesheet" href="style.css">
+		<link rel="shortcut icon" type="image/x-icon" href="img/favicon.gif">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/yamljs/0.3.0/yaml.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.5/cropper.min.js"></script>
+		<script defer src="js/scripts.js"></script>
+	 </head>
+
+	<body>
+		<h1>Unity sprite sheet chopper</h1>
+
+		<p>Load the sprite sheet and it's respective .meta file in order to start</p>
+		
+		<fieldset id="load-data">
+			<legend>File selection</legend>
+			<label for="image-file-input">Image file:</label>
+			<input type="file" id="image-file-input" name="image-file" accept=".png"></input>
+			<label for="meta-file-input">Meta file:</label>
+			<input type="file" id="meta-file-input" name="image-file" accept=".meta"></input>
+			<br><button type="button" id="reload-button">Reload</button>
+		</fieldset>
+		<label id="sprite-selection-label">Image:
+			<select id="sprite-selection" name="sprite-selection"></select>
+		</label><br>
+
+		<div id="meta-info"></div>
+		<div id="result"></div>
+	</body>
+</html>

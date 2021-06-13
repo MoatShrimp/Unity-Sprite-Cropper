@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "watch": true,
+        "lib": ["dom", "ES2019"],
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "outFile": "../js/scripts.js",
+        "alwaysStrict": true
+    },
+
+"files": ["script.ts"]
+}
