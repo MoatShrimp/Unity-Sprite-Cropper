@@ -9,24 +9,36 @@ const getImage = e$("image-file-input");
 const getMeta = e$("meta-file-input");
 const spriteSelection = e$("sprite-selection");
 const metaInfo = e$("meta-info");
+const mouseInfo = e$("mouse-info");
 const result = e$("result");
 const outputDiv = e$("output");
 const cropped = e$("cropped");
-const canvas = document.getElementById('output');
+const mainImg = e$("image");
+const canvas = e$('output');
 let cropper = null;
 let img = null;
 const dataEvent = new Event("change");
 spriteSelection.style.display = "none";
+mainImg.addEventListener("click", (e) => {
+    const offset = mainImg.getBoundingClientRect();
+    const xMulti = mainImg.naturalWidth / offset.width;
+    const yMulti = mainImg.naturalHeight / offset.height;
+    const x = Math.trunc((e.clientX - offset.x) * xMulti);
+    const y = Math.trunc((e.clientY - offset.y) * yMulti);
+    const clickedSprite = trial.findIndex(sprite => x >= sprite.x && x <= sprite.x + sprite.width && y >= sprite.y && y <= sprite.y + sprite.height);
+    mouseInfo.innerHTML = null;
+    mouseInfo.innerHTML = `your current position is [${x}, ${y}] and you clicked ${trial[clickedSprite]}`;
+    spriteSelection.value = clickedSprite;
+    spriteSelection.dispatchEvent(dataEvent);
+});
 getImage.addEventListener("change", () => {
     if (getImage.files[0]) {
         const reader = new FileReader();
         reader.onload = (e) => {
             if (e.target.result) {
-                img = document.createElement('img');
-                img.id = 'image';
-                img.src = e.target.result;
+                mainImg.src = e.target.result;
                 result.innerHTML = '';
-                result.appendChild(img);
+                result.appendChild(mainImg);
             }
         };
         reader.readAsDataURL(getImage.files[0]);
@@ -47,7 +59,7 @@ e$("load-data").addEventListener("change", () => {
                         height: parseInt(meta.height),
                         width: parseInt(meta.width),
                         x: parseInt(meta.x),
-                        y: img.naturalHeight - parseInt(meta.y + meta.height)
+                        y: mainImg.naturalHeight - parseInt(meta.y + meta.height)
                     };
                 });
                 trial.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
@@ -90,5 +102,35 @@ function trialCrop() {
     canvas.width = currentSprite.width;
     canvas.height = currentSprite.height;
     const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, currentSprite.x, currentSprite.y, currentSprite.width, currentSprite.height, 0, 0, currentSprite.width, currentSprite.height);
+    ctx.drawImage(mainImg, currentSprite.x, currentSprite.y, currentSprite.width, currentSprite.height, 0, 0, currentSprite.width, currentSprite.height);
+}
+function downloadAll() {
+    let spriteCollection = [];
+    const folderName = getImage.files[0].name.slice(0, -4);
+    for (const sprite of trial) {
+        const canvas = document.createElement("canvas");
+        canvas.width = sprite.width;
+        canvas.height = sprite.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(mainImg, sprite.x, sprite.y, sprite.width, sprite.height, 0, 0, sprite.width, sprite.height);
+        let dataURL = canvas.toDataURL("image/png");
+        spriteCollection.push({ name: sprite.name, data: dataURL.replace(/^data:image\/(png|jpg);base64,/, "") });
+    }
+    const zip = new JSZip();
+    const images = zip.folder(folderName);
+    for (const image of spriteCollection) {
+        images.file(`${image.name}.png`, image.data, { base64: true });
+    }
+    zip.generateAsync({ type: "blob" }).then((blob) => {
+        saveAs(blob, `${folderName}.zip`);
+    });
+}
+function getBase64Image() {
+    const currentSprite = trial[spriteSelection.value];
+    const canvas = document.createElement("canvas");
+    canvas.width = currentSprite.width;
+    canvas.height = currentSprite.height;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(mainImg, currentSprite.x, currentSprite.y, currentSprite.width, currentSprite.height, 0, 0, currentSprite.width, currentSprite.height);
+    return canvas.toDataURL("image/png");
 }

@@ -8,7 +8,9 @@
 		<meta name="description" content="Web tool for cropping sprite sheets from exportet unity asset files">
 		<link rel="stylesheet" href="style.css">
 		<link rel="shortcut icon" type="image/x-icon" href="img/favicon.gif">
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/yamljs/0.3.0/yaml.min.js"></script>
+		<script defer src="https://cdnjs.cloudflare.com/ajax/libs/yamljs/0.3.0/yaml.min.js"></script>
+		<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
+		<script defer src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
 		<script defer src="js/scripts.js"></script>
 	 </head>
 
@@ -30,7 +32,9 @@
 		</label><br>
 		<canvas id="output"></canvas>
 		<div id="meta-info"></div>
-		<div id="result"></div>
+		<div id="mouse-info"></div>
+		<div id="result"><img id="image"></div>
+		<a id="link">Download</a>
 		
 	</body>
 </html>
