@@ -7,7 +7,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="description" content="Web tool for cropping sprite sheets from exportet unity asset files">
 		<link rel="stylesheet" href="style.css">
-		<link rel="shortcut icon" type="image/x-icon" href="img/favicon.gif">
+		<link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
 		<script defer src="js/yaml.min.js"></script>
 		<script defer src="js/jszip.min.js"></script>
 		<script defer src="js/FileSaver.min.js"></script>
@@ -15,27 +15,55 @@
 	 </head>
 
 	<body>
-		<h1>Unity sprite sheet chopper</h1>
-
-		<p>Load the sprite sheet and it's respective .meta file in order to start</p>
+		<header>
+				<a id="logo" href="https://github.com/MoatShrimp"></a>
+		</header>
 		
-		<fieldset id="file-input">
-			<legend>File selection</legend>
-			<label for="image-file-input">Image file:</label>
-			<input type="file" id="image-file-input" name="image-file" accept=".png"></input>
-			<label for="meta-file-input">Meta file:</label>
-			<input type="file" id="meta-file-input" name="image-file" accept=".meta"></input>
-			<br><button type="button" id="reload-button">Reload</button>
-		</fieldset>
+		<section id="file-area">
+			<img id="unity-logo" src="img/unity-masterbrand-black.png">
+			<div class="drop-box drop-box-padding">
+				<div id="drop-area">
+					<form class="my-form">
+						<div class="upload-arrow">
+							<img class="upload-top" src="img/arrow.svg" alt="Upload">
+							<img class="upload-bottom" src="img/bucket.svg" alt="Upload">
+						</div>
+						
+						<p>Click to upload or drag-and-drop your image and meta files here</p>
+						<input type="file" id="fileElem" multiple accept=".png, .meta">
+					</form>
+				</div>
+			</div>
 
-		<label id="sprite-selection-label">Sprite:
-			<select id="sprite-selection" name="sprite-selection">
-				<option>No sprite sheet loaded</option>
-			</select>
-		</label><br>
+			<div class="drop-box loaded-files-padding">
+				<div id="loaded-files">
+					<h3>Loaded Files</h3>
+					<ul id="loaded-list">
+					</ul>
+				</div>
+			</div>
+		</section>
 
-		<div id="loaded-sprite"></div>
-		<img id="loaded-sprite-sheet">
-		
+		<section id="image-area">
+			<div class="drop-box loaded-sprite">
+				<label id="sprite-selection-label">Loaded Sprite
+					<select id="sprite-selection" name="sprite-selection">
+						<option>No sprite sheet loaded</option>
+					</select>
+				</label>
+				<div class="left-top">
+					<div id="loaded-sprite" class="checkerboard"></div>					
+				</div>
+			</div>
+			</div>
+			<div class="drop-box loaded-sheet">
+				<h3>Loaded Sprite Sheet</h3>
+				<div>
+					<div class="checkerboard sheet-box">
+						<img id="loaded-sprite-sheet">
+					</div>
+				</div>
+			</div>
+		</section>
 	</body>
 </html>

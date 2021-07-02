@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "ESNext",
+        "target": "ES2019",
         "watch": true,
         "lib": ["dom", "ES2019"],
         "removeComments": true,
@@ -12,9 +12,11 @@
 "files": [
     "prerequisites.ts",
     "getSpriteCanvas.ts",
+    "getHoveredSpriteIndex.ts",
     "getClickedSpriteIndex.ts",
     "downloadSprite.ts",
     "downloadAllSprites.ts",
+    "manageFiles.ts",
     "index.ts"
 ]
 }

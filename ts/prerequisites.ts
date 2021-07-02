@@ -16,4 +16,5 @@ interface SpriteMeta {
 
 //getElementById shorthand
 const byId:any = document.getElementById.bind(document);
+const byClass:any = document.getElementsByClassName.bind(document);
 

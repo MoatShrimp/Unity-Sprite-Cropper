@@ -1,4 +1,4 @@
-function getClickedSpriteIndex(event:MouseEvent, sheet:HTMLImageElement, metaArr:SpriteMeta[]) {
+function getHoveredSpriteIndex (event:MouseEvent, sheet:HTMLImageElement, metaArr:SpriteMeta[]) {
     const offset = sheet.getBoundingClientRect();
 	const xScale = sheet.naturalWidth / offset.width;
 	const yScale = sheet.naturalHeight / offset.height;
