@@ -32,7 +32,7 @@ video {
 
 img {
 	display: block;
-	-margin: 20px auto;
+	margin: 20px auto;
 	max-width: 100%;
 	height: auto;
 }
@@ -41,7 +41,7 @@ img {
 	text-align: center;
 }
 
-#load-data label {
+#file-input label {
     display:block;
 }
 

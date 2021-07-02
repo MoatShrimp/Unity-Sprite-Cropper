@@ -9,5 +9,12 @@
         "alwaysStrict": true
     },
 
-"files": ["script.ts"]
+"files": [
+    "prerequisites.ts",
+    "getSpriteCanvas.ts",
+    "getClickedSpriteIndex.ts",
+    "downloadSprite.ts",
+    "downloadAllSprites.ts",
+    "index.ts"
+]
 }
