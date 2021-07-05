@@ -3,6 +3,7 @@ interface SpritePair {
 	meta:File
 }
 const pairArr:SpritePair[] = [];
+const loaded:SpritePair[] = [];
 
 function manageFiles(files:FileList) {
 
@@ -17,6 +18,7 @@ function manageFiles(files:FileList) {
 
 			if (index > -1) {
 				pairArr[index].img = file;
+				loaded.push(pairArr[index]);
 				let child:HTMLLIElement = null;
 				if(child = <HTMLLIElement>loadedList.childNodes[index + 1]) {
 					child.classList.remove("missing-item");
@@ -31,9 +33,11 @@ function manageFiles(files:FileList) {
 			const index = pairArr.findIndex(pair => pair.img?.name === name.slice(0, -5));
 			if (index > -1) {
 				pairArr[index].meta = file;
+				loaded.push(pairArr[index]);
 				let child:HTMLLIElement = null;
 				if(child = <HTMLLIElement>loadedList.childNodes[index + 1]) {
 					child.classList.remove("missing-item");
+					
 				}
 			}
 			else {
@@ -68,5 +72,9 @@ function manageFiles(files:FileList) {
 		item.textContent = name;
 
 		loadedList.appendChild(item);
+	}
+
+	if (loaded.length) {
+		imageArea.classList = ["image-area-loaded"];
 	}
 }
