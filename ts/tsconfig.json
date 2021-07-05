@@ -10,13 +10,14 @@
     },
 
 "files": [
-    "prerequisites.ts",
+    "prerequisites.ts",    
     "getSpriteCanvas.ts",
     "getHoveredSpriteIndex.ts",
     "getClickedSpriteIndex.ts",
     "downloadSprite.ts",
     "downloadAllSprites.ts",
     "manageFiles.ts",
+    "quickReader.ts",
     "index.ts"
 ]
 }
