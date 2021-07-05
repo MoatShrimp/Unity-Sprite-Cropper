@@ -1,11 +1,13 @@
+/*START OF base layout
+	Shared base for all site elements
+*/
 * {
 	box-sizing: border-box;
 }
 
 body {
 	display: grid;
-	max-width: 1500px;
-	grid-template-columns: 1fr 3fr;
+	max-width: 1800px;
 	grid-gap: 20px;
 	align-items: center;
 	margin: 0 auto;
@@ -14,7 +16,8 @@ body {
 	font: 18px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 	color: #444;
 	height: 100%;
-	
+	overflow-y: hidden;
+	background: #ECF0F1;
 }
 
 html {
@@ -28,6 +31,7 @@ h3 {
 
 @media (prefers-color-scheme: dark) {
 	body {
+		
 		color: rgb(0, 0, 0);
 		background: #ECF0F1;
 	}
@@ -39,19 +43,43 @@ h3 {
 	}
 }
 
+
 video {
 	max-width: 100%;
 	height: auto;
 }
 
-
-
-.width-wrap {
-	width:100%;
-	max-width: 1170px;
-	margin: 0 auto;
+section {
+	display: inline-block;
 }
-header {
+
+/*floating-box
+	Generic box layout
+*/
+.floating-box {
+	position: relative;
+	background: #fff;
+	margin: 15px;
+	box-shadow: 0 1px 4px rgba(0,0,0,.3);
+	
+}
+.floating-box-inner {
+	padding: 2em;
+}
+
+h2 {
+	font-size: 15px;
+	padding: 1rem 1rem;
+	margin:0;
+	border-bottom:2px solid rgb(201, 201, 201);
+}
+/*END OF base layout*/
+
+/*START OF floating promotional icon
+	Floating MoatShrimp icon for personal promotion
+*/
+
+#promotional {
 	position:absolute;
 	height:40px;
 	width:40px;
@@ -59,13 +87,7 @@ header {
 	right:-50px;
 }
 
-header > .width-wrap {
-	text-align: right;
-	display: flex;
-	justify-content: right;
-}
-
-#logo {
+#promotional-logo {
 	display:block;
 	height:40px;
 	width:40px;
@@ -74,173 +96,129 @@ header > .width-wrap {
 	background-size: contain;
 	filter: grayscale(100%);
 	transition: 0.3s;
+	}
+
+	#logo:hover {
+		filter: none;		
 }
+/*END OF floating header*/
 
-#logo:hover {
-	filter: none;
-	
-}
-
-
-
-.center {
-	text-align: center;
-}
-
-#file-input label {
-    display:block;
-}
-
-
-
-#cont > #hover {
-	display:none;
-	height:200px;
-	width:200px;
-	position:absolute;
-}
-
-#cont > #hover > canvas {
-	height:200px;
-	max-width:200px;
-	overflow:hidden;
-}
-
-#cont:hover > #hover {
-	display:block;
-}
-
-
+/*START OF file input section
+	Split into three parts, short page infromation, file input button and a list of the loaded files
+*/
 #file-area {
 	user-select: none;
 	font-size: 0.8em;
-}
-.upload-arrow{
-	height:110px;
-	width:100px;
-	margin:0 auto 1rem auto;
-	position: relative;
+	max-width: 400px;
+	margin: 0 auto;
 }
 
-.upload-top {
-	height:70px;
-	width:100px;
-	margin:0 auto;
-	position:absolute;
-	transition:0.2s;
-	top:0;
-}
-
-.upload-bottom {
-	height:35px;
-	width:100px;
-	position:absolute;
-	margin:0 auto;
-	bottom:0;
-}
-
-#drop-area:hover .upload-top {
-	top:10px;
-}
-
-.top-10 {
-	top:10px;
-}
-
-.drop-box {
-	position: relative;
-	background: #fff;
-	margin: 15px auto 0;
-	box-shadow: 0 1px 4px rgba(0,0,0,.3);
-	
-}
-
-.drop-box-padding {
-	padding: 2rem;
-}
-.loaded-files-padding {
-	padding: 0;
-}
-
-#drop-area {
-	text-align: center;
+/*area inside to give the borders margins*/
+#drop-area {	
 	border: 1px dashed #ccc;
 	border-radius: 20px;
-	font-family: sans-serif;
+	cursor: pointer;
 	margin: 0 auto;
-	padding: 20px;
-	cursor: pointer;
-  }
-  #drop-area.highlight {
-	border-color: purple;
-  }
-  p {
-	margin-top: 0;
-  }
-  .my-form {
-	margin-bottom: 10px;
-  }
-  #gallery {
-	margin-top: 10px;
-  }
-  #gallery img {
-	width: 150px;
-	margin-bottom: 10px;
-	margin-right: 10px;
-	vertical-align: middle;
-  }
-  .button {
-	display: inline-block;
-	padding: 10px;
-	background: #ccc;
-	cursor: pointer;
-	border-radius: 5px;
-	border: 1px solid #ccc;
-  }
-  .button:hover {
-	background: #ddd;
-  }
-  #fileElem {
-	display: none;
-  }
+	padding: 20px;	
+	text-align: center;
+}
+	#drop-area h3{
+		margin: 0;
+		line-height: 1.2em;
+		font-size: 1em;
+		font-weight: normal;
 
-  h3 {
-	  font-size: 15px;
-	  padding: 1rem 1rem;
-	  margin:0;
-	  border-bottom:2px solid rgb(201, 201, 201);
-  }
+	}
+	/*hilight when hovering files over the form*/
+	#drop-area.highlight {
+		border-color: purple;
+	}
 
-  #loaded-list {
-	  list-style:none;
-	  padding:0;
-	  margin:0; 
-	  height:500px;
-	  overflow-y: auto;
-	  overflow-x: hidden;
-  }
+/*upload arrow inside drop-area*/
+	.upload-arrow{
+		height:110px;
+		width:100px;
+		margin:0 auto 1rem auto;
+		position: relative;
+	}
 
-  #loaded-list > li {
-	  border-bottom:1px solid rgb(201, 201, 201);
-	  padding: 0.5rem 0.5rem;
-	  margin:0;	
-  }
+	.upload-arrow-top {
+		height:70px;
+		width:100px;
+		margin:0 auto;
+		position:absolute;
+		transition:0.2s;
+		top:0;
+	}
 
-#loaded-list > li:hover {
-	background:#eee;
-	cursor: pointer;
+	.upload-arrow-bottom {
+		height:35px;
+		width:100px;
+		position:absolute;
+		margin:0 auto;
+		bottom:0;
+	}
+
+		#drop-area:hover .upload-arrow-top {
+			top:10px;
+		} 
+		/*for js*/
+		.move-arrow {
+			top:10px;
+		}
+
+  /*hidden file upload*/
+	#file-upload {
+		display: none;
+	}
+/*END OF file input section*/
+
+/*START OF loaded items list
+*/
+
+#loaded-files {
+	padding:0;
 }
 
-#loaded-list > .missing-item:hover {
-	background:#f9f9f9;
-	cursor: not-allowed;
+	/*ul lift of all the loaded objects*/
+	#loaded-list {
+		list-style:none;
+		padding:0;
+		height:500px;
+		overflow-y: auto;
+		overflow-x: hidden;
+	}  
+
+		#loaded-list > li {
+			border-bottom:1px solid rgb(201, 201, 201);
+			padding: 0.5rem 0.5rem;
+			margin:0;	
+		}
+
+			#loaded-list > li:hover {
+				background:#eee;
+				cursor: pointer;
+			}
+
+			#loaded-list > .missing-item:hover {
+				background:#f9f9f9;
+				cursor: not-allowed;
+			}
+
+
+			.missing-item {
+				color:#ddd;
+			}
+
+
+/*END OF loaded items list
+*/
+
+#image-area {
+	transition: 0.5s;
+	transition-timing-function: ease-in-out;
+	
 }
-
-
-.missing-item {
-	color:#ddd;
-}
-
 .loaded-sprite {
 	height:250px;
 	
@@ -277,11 +255,6 @@ header > .width-wrap {
 .loaded-sheet {
 	height:800px;
 	position: relative;
-	align-items: center;
-}
-
-#loaded-sprite-sheet{
-	max-height:700px;
 }
 
 .checkerboard {
@@ -290,12 +263,12 @@ header > .width-wrap {
 
 .sheet-box{
 	padding: 0.5em;
-	display: inline-block;
 	border-radius: 10px;
 	border:5px #000 groove;
 	position: relative;
-	max-height: 100%;
 	margin:0 auto;
+	height:100%;
+	width: 100%;
 }
 
 img {
@@ -327,3 +300,61 @@ html {
 section {
 	height:100%;
 }
+
+.image-area-unloaded {
+	width:0;
+	opacity:0;
+}
+.image-area-loaded {
+	width:100%;
+	opacity:1;
+}
+
+.wrap{
+	height: 100%;
+	margin: 0 auto;
+	width: 100%;
+	max-width: 1800px;
+	display:flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: left;
+	align-items: flex-start;
+	
+}
+
+section, .image-area-wrap {
+	display:flex;
+	flex-flow: column;
+	height: 100%;
+}
+
+#loaded-files{
+	flex-grow: 1;
+}
+
+.loaded-sheet{
+	flex-grow: 1;
+}
+
+#loaded-sprite{
+	height: 130px;
+	width: 130px;
+}
+
+.floating-box-inner{
+	display: flex;
+  	align-items: center;
+	height: 100%;
+}
+
+.floating-box{
+	display:flex;
+	flex-flow: column;
+}
+
+#drop-box{
+	height:auto;
+}
+
+#promotional{display:none;}

@@ -32,9 +32,9 @@ loadedSheet.addEventListener("click", (event) => {
 //Upload Part
 
 const dropArea = byId('drop-area');
-const multiFile:HTMLInputElement = byId('fileElem');
+const multiFile:HTMLInputElement = byId('file-upload');
 const loadedList:HTMLUListElement = byId('loaded-list');
-const donwloadArrow:HTMLImageElement = byClass("upload-top")[0];
+const donwloadArrow:HTMLImageElement = byClass("upload-arrow-top")[0];
 
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
 	dropArea.addEventListener(eventName, function(e) {
@@ -71,8 +71,8 @@ dropArea.addEventListener('drop', (e) => {
 	manageFiles(e.dataTransfer.files);	
 });
 loadedList.addEventListener('drop', (e) => {	
-	donwloadArrow.classList.add("top-10");
-	setTimeout(() => {  donwloadArrow.classList.remove("top-10"); }, 250);
+	donwloadArrow.classList.add("move-arrow");
+	setTimeout(() => {  donwloadArrow.classList.remove("move-arrow"); }, 250);
 	manageFiles(e.dataTransfer.files);
 
 });
@@ -102,26 +102,9 @@ loadedList.addEventListener("click", (event) => {
 		};
 		reader.readAsDataURL(currentPair.img);
 
-		const metareader = new FileReader();
-				
-		metareader.onload = (e) => {
+		quickReader(currentPair.meta).then(value => {
+			metaArr = value;
 
-			const rawMeta = YAML.parse(<string>e.target.result).TextureImporter.spriteSheet.sprites;
-
-			metaArr = rawMeta.map(sprite => {
-
-				const meta = sprite.rect;
-
-				return {
-					name:sprite.name,
-					height:parseInt(meta.height), 
-					width:parseInt(meta.width),
-					x:parseInt(meta.x),
-					y:loadedSheet.naturalHeight - parseInt(meta.y + meta.height)
-				};
-			});
-
-			//sorting the sprites from a to z
 			metaArr.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
 
 			selectedSprite.innerHTML = null;
@@ -133,7 +116,9 @@ loadedList.addEventListener("click", (event) => {
 				spriteDropDown.add(selection);
 			}
 			spriteDropDown.dispatchEvent(dataEvent);
-		};
-		metareader.readAsText(currentPair.meta);
+		});
 	}
 });
+
+const imageArea = byId("image-area");
+

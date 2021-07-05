@@ -1,6 +1,13 @@
 "use strict";
 const byId = document.getElementById.bind(document);
 const byClass = document.getElementsByClassName.bind(document);
+function ofId(name) {
+    function func() {
+        return document.getElementById(name);
+    }
+    return func;
+}
+const adam = (name => ofId(name));
 function getSpriteCanvas(sheet, spriteMeta) {
     const canvas = document.createElement("canvas");
     canvas.width = spriteMeta.width;
@@ -55,7 +62,43 @@ function downloadAllSprites(sheet, metaArr, folderName) {
         saveAs(blob, `${folderName}.zip`);
     });
 }
+function downloadTest(sheet, metaArr, folderName) {
+    const zip = new JSZip();
+    const imageFolder = zip.folder(folderName);
+    for (let i = 0; i < metaArr.length; ++i) {
+        const current = metaArr[i];
+        getSpriteCanvas(sheet, current).
+            toBlob(blob => {
+            imageFolder.file(`${current.name}.png`, blob);
+            if (i + 1 === metaArr.length) {
+                zip.generateAsync({ type: "blob" }).then((blob) => {
+                    saveAs(blob, `${folderName}.zip`);
+                });
+            }
+        });
+    }
+}
+function quickDownload(sheet, metaArr, folderName) {
+    const zipObj = {};
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(sheet, 0, 0);
+    for (const sprite of metaArr) {
+        const name = `${sprite.name}.png`;
+        const file = new Uint8Array(ctx.getImageData(sprite.x, sprite.y, sprite.width, sprite.height).data.buffer);
+        zipObj[name] = [file, { level: 0 }];
+    }
+    console.log(zipObj);
+    fflate.zip(zipObj, {}, function (err, out) {
+        const blob = new Blob([out], {
+            type: "application/octet-stream"
+        });
+        console.log(blob);
+        saveAs(blob, `${folderName}.zip`);
+    });
+}
 const pairArr = [];
+const loaded = [];
 function manageFiles(files) {
     const oldLength = pairArr.length;
     const re = /(?:\.([^.]+))?$/;
@@ -66,6 +109,7 @@ function manageFiles(files) {
             const index = pairArr.findIndex(pair => { var _a; return ((_a = pair.meta) === null || _a === void 0 ? void 0 : _a.name.slice(0, -5)) === name; });
             if (index > -1) {
                 pairArr[index].img = file;
+                loaded.push(pairArr[index]);
                 let child = null;
                 if (child = loadedList.childNodes[index + 1]) {
                     child.classList.remove("missing-item");
@@ -79,6 +123,7 @@ function manageFiles(files) {
             const index = pairArr.findIndex(pair => { var _a; return ((_a = pair.img) === null || _a === void 0 ? void 0 : _a.name) === name.slice(0, -5); });
             if (index > -1) {
                 pairArr[index].meta = file;
+                loaded.push(pairArr[index]);
                 let child = null;
                 if (child = loadedList.childNodes[index + 1]) {
                     child.classList.remove("missing-item");
@@ -114,6 +159,37 @@ function manageFiles(files) {
         item.textContent = name;
         loadedList.appendChild(item);
     }
+    if (loaded.length) {
+        imageArea.classList = ["image-area-loaded"];
+    }
+}
+async function quickReader(file) {
+    function readFileAsync(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                resolve(reader.result);
+            };
+            reader.onerror = reject;
+            reader.readAsText(file);
+        });
+    }
+    const input = await readFileAsync(file);
+    const spriteList = input.split("name: ");
+    const output = [];
+    for (let i = 1; i < spriteList.length; ++i) {
+        const allLines = spriteList[i].split("\n");
+        const meta = {
+            name: allLines[0],
+            x: parseInt(allLines[3].split("x: ")[1]),
+            y: parseInt(allLines[4].split("y: ")[1]),
+            width: parseInt(allLines[5].split("width: ")[1]),
+            height: parseInt(allLines[6].split("height: ")[1])
+        };
+        meta.y = loadedSheet.naturalHeight - (meta.y + meta.height);
+        output.push(meta);
+    }
+    return output;
 }
 const spriteDropDown = byId("sprite-selection");
 const selectedSprite = byId("loaded-sprite");
@@ -137,9 +213,9 @@ loadedSheet.addEventListener("click", (event) => {
     spriteDropDown.dispatchEvent(dataEvent);
 });
 const dropArea = byId('drop-area');
-const multiFile = byId('fileElem');
+const multiFile = byId('file-upload');
 const loadedList = byId('loaded-list');
-const donwloadArrow = byClass("upload-top")[0];
+const donwloadArrow = byClass("upload-arrow-top")[0];
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
     dropArea.addEventListener(eventName, function (e) {
         e.preventDefault();
@@ -170,8 +246,8 @@ dropArea.addEventListener('drop', (e) => {
     manageFiles(e.dataTransfer.files);
 });
 loadedList.addEventListener('drop', (e) => {
-    donwloadArrow.classList.add("top-10");
-    setTimeout(() => { donwloadArrow.classList.remove("top-10"); }, 250);
+    donwloadArrow.classList.add("move-arrow");
+    setTimeout(() => { donwloadArrow.classList.remove("move-arrow"); }, 250);
     manageFiles(e.dataTransfer.files);
 });
 multiFile.addEventListener("change", () => {
@@ -192,19 +268,8 @@ loadedList.addEventListener("click", (event) => {
             }
         };
         reader.readAsDataURL(currentPair.img);
-        const metareader = new FileReader();
-        metareader.onload = (e) => {
-            const rawMeta = YAML.parse(e.target.result).TextureImporter.spriteSheet.sprites;
-            metaArr = rawMeta.map(sprite => {
-                const meta = sprite.rect;
-                return {
-                    name: sprite.name,
-                    height: parseInt(meta.height),
-                    width: parseInt(meta.width),
-                    x: parseInt(meta.x),
-                    y: loadedSheet.naturalHeight - parseInt(meta.y + meta.height)
-                };
-            });
+        quickReader(currentPair.meta).then(value => {
+            metaArr = value;
             metaArr.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
             selectedSprite.innerHTML = null;
             spriteDropDown.innerHTML = null;
@@ -215,7 +280,7 @@ loadedList.addEventListener("click", (event) => {
                 spriteDropDown.add(selection);
             }
             spriteDropDown.dispatchEvent(dataEvent);
-        };
-        metareader.readAsText(currentPair.meta);
+        });
     }
 });
+const imageArea = byId("image-area");

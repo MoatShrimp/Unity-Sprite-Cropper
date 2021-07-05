@@ -10,60 +10,58 @@
 		<link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
 		<script defer src="js/yaml.min.js"></script>
 		<script defer src="js/jszip.min.js"></script>
+		<script defer src="https://unpkg.com/fflate@0.7.1/umd/index.js"></script>
 		<script defer src="js/FileSaver.min.js"></script>
 		<script defer src="js/scripts.js"></script>
 	 </head>
 
 	<body>
-		<header>
-				<a id="logo" href="https://github.com/MoatShrimp"></a>
-		</header>
-		
-		<section id="file-area">
-			<img id="unity-logo" src="img/unity-masterbrand-black.png">
-			<div class="drop-box drop-box-padding">
-				<div id="drop-area">
-					<form class="my-form">
+		<div class="wrap">
+			<div id="promotional">
+					<a id="promotional-logo" href="https://github.com/MoatShrimp"></a>
+			</div>
+			
+			<section id="file-area">
+				<img id="unity-logo" src="img/unity-masterbrand-black.png">
+				<div id="drop-box" class="floating-box floating-box-inner ">
+					<form id="drop-area">
 						<div class="upload-arrow">
-							<img class="upload-top" src="img/arrow.svg" alt="Upload">
-							<img class="upload-bottom" src="img/bucket.svg" alt="Upload">
+							<img class="upload-arrow-top" src="img/arrow.svg" alt="Upload">
+							<img class="upload-arrow-bottom" src="img/bucket.svg" alt="Upload">
 						</div>
 						
-						<p>Click to upload or drag-and-drop your image and meta files here</p>
-						<input type="file" id="fileElem" multiple accept=".png, .meta">
+						<h3>Click to upload or drag-and-drop your image and meta files here</h3>
+						<input type="file" id="file-upload" multiple accept=".png, .meta">
 					</form>
 				</div>
-			</div>
 
-			<div class="drop-box loaded-files-padding">
-				<div id="loaded-files">
-					<h3>Loaded Files</h3>
-					<ul id="loaded-list">
-					</ul>
+				<div id="loaded-files" class="floating-box padding-0">
+						<h2>Loaded Files</h2>
+						<ul id="loaded-list"></ul>
 				</div>
-			</div>
-		</section>
+			</section>
 
-		<section id="image-area">
-			<div class="drop-box loaded-sprite">
-				<label id="sprite-selection-label">Loaded Sprite
-					<select id="sprite-selection" name="sprite-selection">
-						<option>No sprite sheet loaded</option>
-					</select>
-				</label>
-				<div class="left-top">
-					<div id="loaded-sprite" class="checkerboard"></div>					
-				</div>
-			</div>
-			</div>
-			<div class="drop-box loaded-sheet">
-				<h3>Loaded Sprite Sheet</h3>
-				<div>
-					<div class="checkerboard sheet-box">
-						<img id="loaded-sprite-sheet">
+			<section id="image-area" class="image-area-unloaded">
+				<div class="image-area-wrap">
+					<div class="floating-box loaded-sprite">
+						<h2>Loaded Sprite</h2>
+						<div class="floating-box-inner">
+							<div id="loaded-sprite" class="checkerboard"></div>					
+							<select id="sprite-selection" name="sprite-selection">
+								<option>No sprite sheet loaded</option>
+							</select>
+						</div>
+					</div>
+					<div class="floating-box loaded-sheet">
+						<h2>Loaded Sprite Sheet</h2>
+						<div class="floating-box-inner">
+							<div class="checkerboard sheet-box">
+								<img id="loaded-sprite-sheet">
+							</div>
+						</div>
 					</div>
 				</div>
-			</div>
-		</section>
+			</section>
+		</div>
 	</body>
 </html>
