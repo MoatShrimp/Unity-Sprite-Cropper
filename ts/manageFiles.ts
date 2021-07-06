@@ -75,6 +75,8 @@ function manageFiles(files:FileList) {
 	}
 
 	if (loaded.length) {
-		imageArea.classList = ["image-area-loaded"];
+		const spriteArea = byId("area1");
+		imageArea.classList = ["box image-area-loaded"];
+		spriteArea.classList = ["box loaded-sprite sprite-area-loaded"];
 	}
 }

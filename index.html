@@ -22,9 +22,27 @@
 			</div>
 			
 			<section id="file-area">
+
 				<img id="unity-logo" src="img/unity-masterbrand-black.png">
-				<div id="drop-box" class="floating-box floating-box-inner ">
-					<form id="drop-area">
+
+				<div id="area1" class="box loaded-sprite sprite-area-unloaded">
+
+					<div class="box-header">
+						<h2>Loaded Sprite</h2>
+						<select id="sprite-selection" name="sprite-selection">
+							<option>No sprite sheet loaded</option>
+						</select>
+					</div>
+
+					<div class="box-main">
+						<div id="loaded-sprite" class="checkerboard"></div>					
+						
+					</div>	
+
+				</div>
+
+				<div id="drop-box" class="box box-main no-header">
+					<form id="drop-area" class="">
 						<div class="upload-arrow">
 							<img class="upload-arrow-top" src="img/arrow.svg" alt="Upload">
 							<img class="upload-arrow-bottom" src="img/bucket.svg" alt="Upload">
@@ -35,27 +53,47 @@
 					</form>
 				</div>
 
-				<div id="loaded-files" class="floating-box padding-0">
+
+
+				<div id="loaded-files" class="box">
+
+					<div class="box-header">
 						<h2>Loaded Files</h2>
-						<ul id="loaded-list"></ul>
+					</div>
+
+					<ul id="loaded-list" class="box-main no-margin no-padding"></ul>
+
+				</div>
+
+			</section>
+
+			<section id="image-area" class="box loaded-sheet image-area-unloaded">
+
+				<div class="box-header">
+					<h2>Loaded Sprite Sheet</h2>
+				</div>
+
+				<div class="box-main">
+					<div class="sprite-sheet-wrap checkerboard">
+						<img id="loaded-sprite-sheet">
+					</div>
 				</div>
 			</section>
 
-			<section id="image-area" class="image-area-unloaded">
+			<section  class="image-area-unloaded">
 				<div class="image-area-wrap">
-					<div class="floating-box loaded-sprite">
-						<h2>Loaded Sprite</h2>
-						<div class="floating-box-inner">
-							<div id="loaded-sprite" class="checkerboard"></div>					
-							<select id="sprite-selection" name="sprite-selection">
-								<option>No sprite sheet loaded</option>
-							</select>
+
+					
+
+					<div class="drag-area" id="drag-up-down"></div>
+					<div class="box loaded-sheet">
+
+						<div class="box-header">
+							<h2>Loaded Sprite Sheet</h2>
 						</div>
-					</div>
-					<div class="floating-box loaded-sheet">
-						<h2>Loaded Sprite Sheet</h2>
-						<div class="floating-box-inner">
-							<div class="checkerboard sheet-box">
+
+						<div class="box-main">
+							<div class="sprite-sheet-wrap checkerboard">
 								<img id="loaded-sprite-sheet">
 							</div>
 						</div>

@@ -8,6 +8,9 @@ function ofId(name) {
     return func;
 }
 const adam = (name => ofId(name));
+function convertRemToPixels(rem) {
+    return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
+}
 function getSpriteCanvas(sheet, spriteMeta) {
     const canvas = document.createElement("canvas");
     canvas.width = spriteMeta.width;
@@ -160,7 +163,9 @@ function manageFiles(files) {
         loadedList.appendChild(item);
     }
     if (loaded.length) {
-        imageArea.classList = ["image-area-loaded"];
+        const spriteArea = byId("area1");
+        imageArea.classList = ["box image-area-loaded"];
+        spriteArea.classList = ["box loaded-sprite sprite-area-loaded"];
     }
 }
 async function quickReader(file) {
@@ -270,7 +275,11 @@ loadedList.addEventListener("click", (event) => {
         reader.readAsDataURL(currentPair.img);
         quickReader(currentPair.meta).then(value => {
             metaArr = value;
-            metaArr.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+            metaArr.sort((a, b) => (a.x > b.x) ? 1 :
+                (b.x > a.x) ? -1 :
+                    (a.y > b.y) ? 1 :
+                        (b.y > a.y) ? -1 :
+                            0);
             selectedSprite.innerHTML = null;
             spriteDropDown.innerHTML = null;
             for (const index in metaArr) {
@@ -284,3 +293,41 @@ loadedList.addEventListener("click", (event) => {
     }
 });
 const imageArea = byId("image-area");
+const spriteArea = byId("area1");
+const sheet = byId("main-img");
+let move = false;
+let stopping = true;
+const drag = byId("drag-up-down");
+let yCoor = null;
+imageArea.addEventListener("mousemove", (event) => {
+    yCoor = event.clientY;
+});
+function movingLoop(startY) {
+    const current = yCoor;
+    const min = 200;
+    const max = document.documentElement.clientHeight - min - (min / 2);
+    if (yCoor > min && yCoor < max) {
+        const oldHeigth = getComputedStyle(document.documentElement)
+            .getPropertyValue('--top-height')
+            .slice(0, -2);
+        const delta = startY - current;
+        let newHeight = parseInt(oldHeigth) - delta;
+        newHeight =
+            newHeight > min && newHeight < max ? newHeight :
+                newHeight > min ? max :
+                    min;
+        document.documentElement.style.setProperty('--top-height', `${newHeight}px`);
+        document.documentElement.style.setProperty('--bottom-height', `${document.documentElement.clientHeight - newHeight - 150}px`);
+    }
+    if (stopping === false) {
+        requestAnimationFrame(() => { movingLoop(current); });
+    }
+}
+let trialInt = null;
+drag.addEventListener("mousedown", event => {
+    stopping = false;
+    trialInt = window.requestAnimationFrame(() => { movingLoop(event.clientY); });
+});
+document.addEventListener("mouseup", () => {
+    stopping = true;
+});

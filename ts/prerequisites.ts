@@ -30,3 +30,6 @@ function ofId(name) {
 
 const adam = (name => ofId(name));
 
+function convertRemToPixels(rem) {    
+    return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
+}
