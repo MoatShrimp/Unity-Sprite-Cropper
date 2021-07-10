@@ -22,6 +22,7 @@ function manageFiles(files:FileList) {
 				let child:HTMLLIElement = null;
 				if(child = <HTMLLIElement>loadedList.childNodes[index + 1]) {
 					child.classList.remove("missing-item");
+					child.title = "";
 				}
 				
 			}
@@ -37,6 +38,7 @@ function manageFiles(files:FileList) {
 				let child:HTMLLIElement = null;
 				if(child = <HTMLLIElement>loadedList.childNodes[index + 1]) {
 					child.classList.remove("missing-item");
+					child.title = "";
 					
 				}
 			}
@@ -54,11 +56,13 @@ function manageFiles(files:FileList) {
 			name = pairArr[i].img.name.slice(0, -4);
 			if (!(pairArr[i].meta)) {
 				missingFlag = true;
+				item.title = "Missing meta file";
 			}
 		}
 		else {
 			name = pairArr[i].meta.name.slice(0, -9);
 			missingFlag = true;
+			item.title = "Missing image file";
 		}
 
 		if(name.length > 30) {
@@ -75,8 +79,6 @@ function manageFiles(files:FileList) {
 	}
 
 	if (loaded.length) {
-		const spriteArea = byId("area1");
-		imageArea.classList = ["box image-area-loaded"];
-		spriteArea.classList = ["box loaded-sprite sprite-area-loaded"];
+		imageArea.classList = ["image-area-loaded"];
 	}
 }

@@ -4,15 +4,17 @@
 * {
 	box-sizing: border-box;
 }
-
+html {
+	height:100%;
+	margin: 0;
+	padding: 0;
+}
 body {
-	display: grid;
-	-max-width: 1800px;
-	width:100%;
-	grid-gap: 20px;
-	align-items: center;
-	margin: 0 auto;
-	position:relative;
+	display:flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content:center;
+	margin: 0;
 	padding: 0;
 	font: 18px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 	color: #444;
@@ -20,9 +22,7 @@ body {
 	background: #ECF0F1;
 }
 
-html {
-	margin:0;
-}
+
 h1,
 h2,
 h3 {
@@ -75,7 +75,7 @@ video {
 		height: calc(100% - var(--header-height));
 	}
 	.box-main.no-header {
-		height:100%;
+		height:auto;
 	}
 
 	.box-main.no-padding {
@@ -93,8 +93,20 @@ h2 {
 	margin:0;
 }
 
-.last-box-in-column {
+.last-box-in-flex {
 	flex-grow: 1;
+}
+
+.checkerboard {
+	background-image: url("img/checkerboard.png");
+	display: flex;
+	align-items: center;
+	justify-content:center;
+	margin: 0 auto;
+	min-height: 200px;
+	padding: 0.5em;
+	border-radius: 10px;
+	border: 3px #BFBFBF solid;
 }
 /*END OF base layout*/
 
@@ -133,16 +145,15 @@ h2 {
 	user-select: none;
 	font-size: 0.8em;
 	max-width: 400px;
-	margin: 0 auto;
 }
 
 /*area inside to give the borders margins*/
 #drop-area {	
 	border: 1px dashed #ccc;
-	border-radius: 20px;
+	border-radius: 1.2rem;
 	cursor: pointer;
 	margin: 0 auto;
-	padding: 20px;	
+	padding: 1.2rem;	
 	text-align: center;
 }
 	#drop-area h3{
@@ -159,41 +170,41 @@ h2 {
 
 /*upload arrow inside drop-area*/
 	.upload-arrow{
-		height:110px;
-		width:100px;
+		height:7rem;
 		margin:0 auto 1rem auto;
 		position: relative;
 	}
 
 	.upload-arrow-top {
-		height:70px;
-		width:100px;
-		margin:0 auto;
+		height:4.5rem;
 		position:absolute;
 		transition:0.2s;
 		top:0;
 	}
 
 	.upload-arrow-bottom {
-		height:35px;
-		width:100px;
+		height:2.5rem;
 		position:absolute;
-		margin:0 auto;
 		bottom:0;
 	}
 
-		#drop-area:hover .upload-arrow-top {
-			top:10px;
+		#drop-area:hover .upload-arrow-top, .move-arrow {
+			top:1rem;
 		} 
-		/*for js*/
-		.move-arrow {
-			top:10px;
-		}
 
   /*hidden file upload*/
 	#file-upload {
 		display: none;
 	}
+
+
+#file-area > #loaded-files > #loaded-list:empty {
+
+}
+
+/*minimizig of the dorp area on sprit3e shet expansion*/
+
+
 /*END OF file input section*/
 
 /*START OF loaded items list
@@ -252,43 +263,17 @@ h2 {
 	transition: 0.5s;
 	transition-timing-function: ease-in-out;	
 }
-.loaded-sprite {
-	height:250px;
-	
+
+#sprite-canvas-wrap {	
 }
 
-
-.loaded-sprite > label {
-	font-size: 15px;
-	padding: 1rem 1rem;
-	margin:0;
-	border-bottom:2px solid rgb(201, 201, 201);
-	width:100%;
-	display:inline-block;
-	font-weight: bold;
-}
-
-
-#loaded-sprite {
-	max-height:200px;
-	max-width:200px;
-	padding: 0.5em;
-	display: inline-block;
-	border-radius: 10px;
-	border:5px #000 groove  ;
-}
-
-#loaded-sprite > canvas {
+#sprite-canvas-wrap > canvas {
 	max-height:100%;
 	max-width:100%;
-	overflow:hidden;
-	display: block;
 	margin: 0 auto;
 }
 
-.checkerboard {
-	background-image: url("img/checkerboard.png");
-}
+
 
 .sheet-box{
 	padding: 0.5em;
@@ -318,18 +303,10 @@ img {
 	border-right: 1px rgb(168, 168, 168) solid;
 }
 
-html {
-	height:100%;
-}
+
 
 #unity-logo {
 	height:auto;
-}
-
-
-section {
-	height:100%;
-	user-select: none;
 }
 
 .image-area-unloaded {
@@ -343,37 +320,16 @@ section {
 }
 
 
-.sprite-area-unloaded {
-	height:0;
-	opacity:0;
-}
-.sprite-area-loaded {
-	height:auto;
-	opacity:1;
-}
-
-.wrap{
-	height: 100%;
-	margin: 0 auto;
-	width: 100%;
-	-max-width: 1800px;
-	display:flex;
-	flex-direction: row;
-	flex-wrap: nowrap;
-	justify-content: left;
-	align-items: flex-start;
-	
-}
-
-section, .image-area-wrap {
+.image-area-wrap {
 	display:flex;
 	flex-flow: column;
 	height: 100vh;
 }
 
-#loaded-sprite{
-	height: 100%;
-	min-width: 130px;
+section {
+	display:flex;
+	flex-flow: column;
+	height: 100vh;
 }
 
 .floating-box-inner{
@@ -385,10 +341,6 @@ section, .image-area-wrap {
 .floating-box{
 	display:flex;
 	flex-flow: column;
-}
-
-#drop-box{
-	height:auto;
 }
 
 #promotional{display:none;}
@@ -408,26 +360,20 @@ section, .image-area-wrap {
 	--bottom-height: calc(100% - var(--top-height) - 7rem);
 }
 
-#area1 {
-	transition: 0.5s;
-}
+
 .loaded-sheet {
-	height:90vh;
+	flex-grow: 1;
+	height:10vh;
+	-height: var(--bottom-height);
 }
 
 .sprite-sheet-wrap {
-	display: flex;
-	align-items: center;
 	height:100%;
 	width:100%;
-	padding: 0.5em;
-	border-radius: 10px;
 }
 
 #loaded-sprite-sheet {
-	
-	margin: 0 auto;
-	object-fit:contain;
+
 	height:auto;
 	width:auto;
 	max-height:100%;
@@ -435,8 +381,34 @@ section, .image-area-wrap {
 }
 
 #loaded-files {
-	max-height:100%;
-	min-height: 700px;
+	min-height: 300px;
 }
 
-section {height:100vh;}
+#sprite-selection {
+	max-width: 200px;
+}
+
+#sprite-meta {
+	position: absolute;
+	font-weight: bold;
+	bottom: 2rem;
+	left: 2rem;
+	font-size: 1rem;
+	line-height: 1rem;
+	-webkit-text-stroke:1px rgb(187, 187, 187);
+}
+
+.drop-loaded {
+	margin-bottom:0;
+	padding-bottom:0;
+}
+.drop-loaded > #drop-area {
+	border-bottom: none;
+	padding-bottom: none;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+}
+
+.files-loaded {
+	margin-top: 0;
+}

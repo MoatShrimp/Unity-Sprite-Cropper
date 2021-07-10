@@ -1,9 +1,8 @@
 //define dom elements
 const spriteDropDown:HTMLSelectElement = byId("sprite-selection");
-const selectedSprite:HTMLDivElement = byId("loaded-sprite");
+const selectedSprite:HTMLDivElement = byId("sprite-canvas-wrap");
 const loadedSheet:HTMLImageElement = byId("loaded-sprite-sheet");
 const reloadBtn:HTMLButtonElement = byId("reload-button");
-const hover:HTMLDivElement = byId("hover");
 const cont:HTMLDivElement = byId("cont");
 
 //main array for storing SpriteMeta
@@ -16,11 +15,6 @@ const dataEvent = new Event("change");
 
 spriteDropDown.addEventListener("change", () => {
 	selectedSprite.innerHTML = null;
-	const hover = document.createElement("div");
-	hover.id = "hover-image";
-
-	selectedSprite.appendChild(hover);
-
 	const currentSprite = metaArr[parseInt(spriteDropDown.value)];
 	selectedSprite.appendChild(getSpriteCanvas(loadedSheet, currentSprite));		
 });

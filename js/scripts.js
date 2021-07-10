@@ -116,6 +116,7 @@ function manageFiles(files) {
                 let child = null;
                 if (child = loadedList.childNodes[index + 1]) {
                     child.classList.remove("missing-item");
+                    child.title = "";
                 }
             }
             else {
@@ -130,6 +131,7 @@ function manageFiles(files) {
                 let child = null;
                 if (child = loadedList.childNodes[index + 1]) {
                     child.classList.remove("missing-item");
+                    child.title = "";
                 }
             }
             else {
@@ -145,11 +147,13 @@ function manageFiles(files) {
             name = pairArr[i].img.name.slice(0, -4);
             if (!(pairArr[i].meta)) {
                 missingFlag = true;
+                item.title = "Missing meta file";
             }
         }
         else {
             name = pairArr[i].meta.name.slice(0, -9);
             missingFlag = true;
+            item.title = "Missing image file";
         }
         if (name.length > 30) {
             const start = name.slice(0, 20);
@@ -163,9 +167,7 @@ function manageFiles(files) {
         loadedList.appendChild(item);
     }
     if (loaded.length) {
-        const spriteArea = byId("area1");
-        imageArea.classList = ["box image-area-loaded"];
-        spriteArea.classList = ["box loaded-sprite sprite-area-loaded"];
+        imageArea.classList = ["image-area-loaded"];
     }
 }
 async function quickReader(file) {
@@ -197,19 +199,15 @@ async function quickReader(file) {
     return output;
 }
 const spriteDropDown = byId("sprite-selection");
-const selectedSprite = byId("loaded-sprite");
+const selectedSprite = byId("sprite-canvas-wrap");
 const loadedSheet = byId("loaded-sprite-sheet");
 const reloadBtn = byId("reload-button");
-const hover = byId("hover");
 const cont = byId("cont");
 let metaArr = null;
 let currentSpriteIndex = 0;
 const dataEvent = new Event("change");
 spriteDropDown.addEventListener("change", () => {
     selectedSprite.innerHTML = null;
-    const hover = document.createElement("div");
-    hover.id = "hover-image";
-    selectedSprite.appendChild(hover);
     const currentSprite = metaArr[parseInt(spriteDropDown.value)];
     selectedSprite.appendChild(getSpriteCanvas(loadedSheet, currentSprite));
 });
