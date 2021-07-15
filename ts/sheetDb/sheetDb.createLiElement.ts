@@ -1,22 +1,17 @@
-sheetDb.prototype.createLiElement = function (key) {
+sheetDb.prototype.createLiElement = function (this:SheetDB, key:string) {
     
     const sheet:Sheet = this[key];
 
     if (sheet.liElement) {   return this;   }
 
-    const item = document.createElement("li");
-    item.textContent = key;
-    item.dataset.key = key;
+    const li = document.createElement("li");
+    li.textContent = key;
+    li.dataset.key = key;
 
-    if (!sheet.imgFile) {
-        item.title = "Missing image file";
-    }
+    if (!sheet.imgFile) {   li.title = "Missing image file"; li.classList.add("missing-item") }
+    else if (!sheet.metaFile) { li.title = "Missing meta file";  li.classList.add("missing-item") }
 
-    else if (!sheet.metaFile) {
-        item.title = "Missing meta file";
-    }
+    sheet.liElement = li;   
 
-    sheet.liElement = item;        
     return this;
-
 }

@@ -18,18 +18,3 @@ interface SpriteMeta {
 //getElementById shorthand
 const byId:any = document.getElementById.bind(document);
 const byClass:any = document.getElementsByClassName.bind(document);
-
-function ofId(name) {
-
-    function func() {
-        return document.getElementById(name);
-    }
-
-    return func;
-}
-
-const adam = (name => ofId(name));
-
-function convertRemToPixels(rem) {    
-    return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
-}

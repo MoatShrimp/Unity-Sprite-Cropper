@@ -1,20 +1,24 @@
-sheetDb.prototype.loadAllData = function (display:HTMLImageElement, select:HTMLSelectElement) {
+sheetDb.prototype.loadAllData = function (this:SheetDB, sheetWrap:HTMLImageElement, selectWrap:HTMLSelectElement, spriteWrap:HTMLCanvasElement) {
+
+    let notLoaded = true;
+    const loadedSheet = sheetWrap.querySelector("img");
 
     for (const key of Object.keys(this)) {
 
-        const sheet = this[key];
+        const sheet:Sheet = this[key];        
         
-        if (sheet.imgData || !(sheet.imgFile && sheet.metaFile)) {  continue;   }
+        if (sheet.imageElement || !(sheet.imgFile && sheet.metaFile)) {  continue;   }
 
-        this.loadImage(key).then( image => {
+        Promise.all([this.loadImage(key), this.loadMeta(key)]).then( ([image, metaArr]) => {
+
             sheet.imageElement = image;
-            
-            this.loadMeta(key).then (metaArr => {
-
             sheet.metaData = metaArr;
             this.createSelectElement(key);
 
-            });
+            if (!loadedSheet?.src && notLoaded) {                
+                notLoaded = false;
+                this.loadSheetToDom(key, sheetWrap, selectWrap, spriteWrap);
+            }
         });
     }
 }

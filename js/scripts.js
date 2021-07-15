@@ -1,16 +1,6 @@
 "use strict";
 const byId = document.getElementById.bind(document);
 const byClass = document.getElementsByClassName.bind(document);
-function ofId(name) {
-    function func() {
-        return document.getElementById(name);
-    }
-    return func;
-}
-const adam = (name => ofId(name));
-function convertRemToPixels(rem) {
-    return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
-}
 function getSpriteCanvas(sheet, spriteMeta) {
     const canvas = document.createElement("canvas");
     canvas.width = spriteMeta.width;
@@ -145,103 +135,6 @@ function updateFileList(pairs, list) {
         list.appendChild(item);
     }
 }
-function loadData(pairs, loaded) {
-    for (const pair of pairs) {
-        if (pair.img && pair.meta && !(loaded.some(entry => entry.name === pair.img.name))) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                if (e.target.result) {
-                    const src = e.target.result;
-                    quickReader(pair.meta).then(value => {
-                        let meta = value;
-                        meta.sort((a, b) => (a.x > b.x) ? 1 :
-                            (b.x > a.x) ? -1 :
-                                (a.y > b.y) ? 1 :
-                                    (b.y > a.y) ? -1 :
-                                        0);
-                        loaded.push({
-                            name: pair.img.name,
-                            img: src,
-                            meta: meta
-                        });
-                    });
-                }
-            };
-            reader.readAsDataURL(pair.img);
-        }
-    }
-    return loaded;
-}
-const pairArr = [];
-const loaded = [];
-function manageFiles(files) {
-    const oldLength = pairArr.length;
-    const re = /(?:\.([^.]+))?$/;
-    Array.from(files).forEach(file => {
-        const name = file.name;
-        const ext = re.exec(name)[1].toString();
-        if (ext === "png" && !(pairArr.some(pair => { var _a; return ((_a = pair.img) === null || _a === void 0 ? void 0 : _a.name) === name; }))) {
-            const index = pairArr.findIndex(pair => { var _a; return ((_a = pair.meta) === null || _a === void 0 ? void 0 : _a.name.slice(0, -5)) === name; });
-            if (index > -1) {
-                pairArr[index].img = file;
-                loaded.push(pairArr[index]);
-                let child = null;
-                if (child = loadedList.childNodes[index + 1]) {
-                    child.classList.remove("missing-item");
-                    child.title = "";
-                }
-            }
-            else {
-                pairArr.push({ img: file, meta: null });
-            }
-        }
-        else if (ext === "meta" && !(pairArr.some(pair => { var _a; return ((_a = pair.meta) === null || _a === void 0 ? void 0 : _a.name) === name; }))) {
-            const index = pairArr.findIndex(pair => { var _a; return ((_a = pair.img) === null || _a === void 0 ? void 0 : _a.name) === name.slice(0, -5); });
-            if (index > -1) {
-                pairArr[index].meta = file;
-                loaded.push(pairArr[index]);
-                let child = null;
-                if (child = loadedList.childNodes[index + 1]) {
-                    child.classList.remove("missing-item");
-                    child.title = "";
-                }
-            }
-            else {
-                pairArr.push({ img: null, meta: file });
-            }
-        }
-    });
-    for (let i = oldLength; i < pairArr.length; ++i) {
-        const item = document.createElement("li");
-        let missingFlag = false;
-        let name = null;
-        if (pairArr[i].img) {
-            name = pairArr[i].img.name.slice(0, -4);
-            if (!(pairArr[i].meta)) {
-                missingFlag = true;
-                item.title = "Missing meta file";
-            }
-        }
-        else {
-            name = pairArr[i].meta.name.slice(0, -9);
-            missingFlag = true;
-            item.title = "Missing image file";
-        }
-        if (name.length > 30) {
-            const start = name.slice(0, 20);
-            const end = name.slice(-15);
-            name = `${start}...${end}`;
-        }
-        if (missingFlag) {
-            item.classList.add("missing-item");
-        }
-        item.textContent = name;
-        loadedList.appendChild(item);
-    }
-    if (loaded.length) {
-        imageArea.classList = ["image-area-loaded"];
-    }
-}
 ;
 function sheetDb() { }
 const mainDb = new sheetDb();
@@ -249,31 +142,30 @@ sheetDb.prototype.newSheet = function (img = null, meta = null) {
     return {
         imgFile: img,
         metaFile: meta,
-        imgData: null,
         metaData: [],
         imageElement: null,
         selectElement: null,
         liElement: null
     };
 };
+sheetDb.prototype.readFileAsync = function (file, asDataUrl = true) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => { resolve(reader.result); };
+        reader.onerror = reject;
+        asDataUrl ? reader.readAsDataURL(file) : reader.readAsText(file);
+    });
+};
 sheetDb.prototype.loadMeta = async function (key) {
     const sheet = this[key];
     if (!sheet.metaFile) {
         return null;
     }
-    function readFileAsync(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => { resolve(reader.result); };
-            reader.onerror = reject;
-            reader.readAsText(file);
-        });
-    }
-    const input = await readFileAsync(sheet.metaFile);
-    const spriteList = input.split("name: ");
+    const metaDataStringified = await this.readFileAsync(sheet.metaFile, false);
+    const metaEntries = metaDataStringified.split("name: ");
     const metaArr = [];
-    for (let i = 1; i < spriteList.length; ++i) {
-        const allLines = spriteList[i].split("\n");
+    for (let i = 1; i < metaEntries.length; ++i) {
+        const allLines = metaEntries[i].split("\n");
         const meta = {
             name: allLines[0],
             x: parseInt(allLines[3].split("x: ")[1]),
@@ -281,7 +173,6 @@ sheetDb.prototype.loadMeta = async function (key) {
             width: parseInt(allLines[5].split("width: ")[1]),
             height: parseInt(allLines[6].split("height: ")[1])
         };
-        meta.y = sheet.imageElement.height - (meta.y + meta.height);
         metaArr.push(meta);
     }
     metaArr.sort((a, b) => (a.x > b.x) ? 1 :
@@ -296,19 +187,8 @@ sheetDb.prototype.loadImage = async function (key) {
     if (!sheet.imgFile) {
         return null;
     }
-    function readFileAsync(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => { resolve(reader.result); };
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
-    }
-    const imageSrc = await readFileAsync(sheet.imgFile);
-    sheet.imgData = imageSrc;
     const image = new Image();
-    image.classList.add("js-sheet-image");
-    image.src = imageSrc;
+    image.src = await this.readFileAsync(sheet.imgFile, true);
     await image.decode();
     return image;
 };
@@ -317,22 +197,22 @@ sheetDb.prototype.createLiElement = function (key) {
     if (sheet.liElement) {
         return this;
     }
-    const item = document.createElement("li");
-    item.textContent = key;
-    item.dataset.key = key;
+    const li = document.createElement("li");
+    li.textContent = key;
+    li.dataset.key = key;
     if (!sheet.imgFile) {
-        item.title = "Missing image file";
+        li.title = "Missing image file";
+        li.classList.add("missing-item");
     }
     else if (!sheet.metaFile) {
-        item.title = "Missing meta file";
+        li.title = "Missing meta file";
+        li.classList.add("missing-item");
     }
-    sheet.liElement = item;
+    sheet.liElement = li;
     return this;
 };
 sheetDb.prototype.createAllLiElements = function () {
-    for (const key of Object.keys(this)) {
-        this.createLiElement(key);
-    }
+    Object.keys(this).forEach((key) => { this.createLiElement(key); });
     return this;
 };
 sheetDb.prototype.removeLiTitle = function (key) {
@@ -354,9 +234,8 @@ sheetDb.prototype.createSelectElement = function (key) {
         (a.text < b.text) ? -1 :
             0);
     const select = document.createElement("select");
-    select.classList.add("js-meta-select");
     options.forEach(option => { select.add(option); });
-    this[key].selectElement = select;
+    sheet.selectElement = select;
     return this;
 };
 sheetDb.prototype.addFiles = function (files) {
@@ -399,31 +278,33 @@ sheetDb.prototype.addFiles = function (files) {
 };
 sheetDb.prototype.addLiToUl = function (ulElement) {
     ulElement.innerHTML = null;
-    for (const key of Object.keys(this)) {
-        ulElement.appendChild(this[key].liElement);
-    }
+    Object.values(this).forEach((sheet) => { ulElement.appendChild(sheet.liElement); });
     return this;
 };
-sheetDb.prototype.loadAllData = function (display, select) {
+sheetDb.prototype.loadAllData = function (sheetWrap, selectWrap, spriteWrap) {
+    let notLoaded = true;
+    const loadedSheet = sheetWrap.querySelector("img");
     for (const key of Object.keys(this)) {
         const sheet = this[key];
-        if (sheet.imgData || !(sheet.imgFile && sheet.metaFile)) {
+        if (sheet.imageElement || !(sheet.imgFile && sheet.metaFile)) {
             continue;
         }
-        this.loadImage(key).then(image => {
+        Promise.all([this.loadImage(key), this.loadMeta(key)]).then(([image, metaArr]) => {
             sheet.imageElement = image;
-            this.loadMeta(key).then(metaArr => {
-                sheet.metaData = metaArr;
-                this.createSelectElement(key);
-            });
+            sheet.metaData = metaArr;
+            this.createSelectElement(key);
+            if (!(loadedSheet === null || loadedSheet === void 0 ? void 0 : loadedSheet.src) && notLoaded) {
+                notLoaded = false;
+                this.loadSheetToDom(key, sheetWrap, selectWrap, spriteWrap);
+            }
         });
     }
 };
 sheetDb.prototype.getFirstLoaded = function () {
-    const foundKey = Object.keys(this).find(key => this[key].imgData);
-    return this[foundKey];
+    const foundSheet = Object.values(this).find((sheet) => sheet.imageElement);
+    return foundSheet;
 };
-sheetDb.prototype.getSpriteCanvasFromSelect = function (key, meta) {
+sheetDb.prototype.getSpriteCanvas = function (key, meta) {
     const sheet = this[key];
     if (!sheet.imageElement) {
         return;
@@ -432,7 +313,8 @@ sheetDb.prototype.getSpriteCanvasFromSelect = function (key, meta) {
     canvas.width = meta.width;
     canvas.height = meta.height;
     const ctx = canvas.getContext('2d');
-    ctx.drawImage(sheet.imageElement, meta.x, meta.y, meta.width, meta.height, 0, 0, meta.width, meta.height);
+    const yInverted = sheet.imageElement.naturalHeight - (meta.y + meta.height);
+    ctx.drawImage(sheet.imageElement, meta.x, yInverted, meta.width, meta.height, 0, 0, meta.width, meta.height);
     return canvas;
 };
 sheetDb.prototype.getSpriteCanvasFromSelect = function (key) {
@@ -441,34 +323,41 @@ sheetDb.prototype.getSpriteCanvasFromSelect = function (key) {
         return;
     }
     const index = parseInt(sheet.selectElement.value);
-    const meta = sheet.metaDataAlphaDecending[index];
+    const meta = sheet.metaData[index];
     return this.getSpriteCanvas(key, meta);
 };
-sheetDb.prototype.getSpriteCanvasFromCoordinates = function (key, x, y) {
+sheetDb.prototype.getSpriteCanvasFromCoordinates = function (key, event) {
     const sheet = this[key];
-    const meta = sheet.metaData.find(meta => {
-        x >= meta.x &&
-            y >= meta.y &&
-            x <= meta.x + meta.width &&
-            y <= meta.y + meta.height;
-    });
+    const image = sheet.imageElement;
+    const offset = image.getBoundingClientRect();
+    console.log(offset);
+    const xScale = image.naturalWidth / offset.width;
+    const yScale = image.naturalHeight / offset.height;
+    const posX = Math.trunc((event.clientX - offset.x) * xScale);
+    const posY = image.naturalHeight - Math.trunc((event.clientY - offset.y) * yScale);
+    console.log(`${posX}.${posY}`);
+    let meta = sheet.metaData.find(meta => posX >= meta.x &&
+        posY >= meta.y &&
+        posX <= meta.x + meta.width &&
+        posY <= meta.y + meta.height);
+    meta = meta !== null && meta !== void 0 ? meta : sheet.metaData[0];
     return this.getSpriteCanvas(key, meta);
 };
-sheetDb.prototype.loadSheetToDom = function (key, sheetArea, spriteSelect, spriteCanvasArea) {
+sheetDb.prototype.loadSheetToDom = function (key, sheetWrap, selectWrap, spriteWrap) {
     const sheet = this[key];
-    const newImage = sheet.imageElement;
-    sheetArea.parentNode.replaceChild(newImage, sheetArea);
-    sheetArea = newImage;
-    const newSelect = sheet.selectElement;
-    spriteSelect.parentNode.replaceChild(newSelect, spriteSelect);
-    spriteSelect = newSelect;
-    spriteCanvasArea.innerHTML = null;
-    spriteCanvasArea.appendChild(this.getSpriteCanvasFromSelect(key));
+    sheetWrap.innerHTML = null;
+    sheetWrap.appendChild(sheet.imageElement);
+    selectWrap.innerHTML = null;
+    selectWrap.appendChild(sheet.selectElement);
+    spriteWrap.innerHTML = null;
+    spriteWrap.appendChild(this.getSpriteCanvasFromSelect(key));
 };
 function fileEvent(files, ul) {
+    donwloadArrow.classList.add("move-arrow");
+    setTimeout(() => { donwloadArrow.classList.remove("move-arrow"); }, 250);
     mainDb.addFiles(files)
         .addLiToUl(ul)
-        .loadAllData(loadedSheet, spriteDropDown);
+        .loadAllData(sheetWrap, selectWrap, spriteWrap);
     if (ul.childNodes.length && imageArea.classList.contains("image-area-unloaded")) {
         imageArea.classList.remove("image-area-unloaded");
     }
@@ -477,126 +366,50 @@ function fileEvent(files, ul) {
         imageArea.classList.add("image-area-unloaded");
     }
 }
-async function quickReader(file) {
-    function readFileAsync(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                resolve(reader.result);
-            };
-            reader.onerror = reject;
-            reader.readAsText(file);
-        });
+const byQ = document.querySelector.bind(document);
+const spriteWrap = byQ(".js-sprite-wrap");
+const sheetWrap = byQ(".js-sheet-wrap");
+const selectWrap = byQ(".js-select-wrap");
+const fileUpload = byQ(".js-file-upload");
+const fileList = byQ(".js-file-list");
+const dropArea = byQ(".js-drop-area");
+const imageArea = byQ(".js-image-area");
+const donwloadArrow = byQ(".upload-arrow-top");
+fileUpload.addEventListener("change", () => { fileEvent(fileUpload.files, fileList); });
+const dAEvent = dropArea.addEventListener.bind(dropArea);
+dAEvent("drop", (e) => { fileEvent(e.dataTransfer.files, fileList); });
+dAEvent("click", () => { fileUpload.click(); });
+const fLEvent = fileList.addEventListener.bind(fileList);
+fLEvent('drop', (e) => { fileEvent(e.dataTransfer.files, fileList); });
+fLEvent("click", (event) => {
+    const clickedElement = event.target;
+    if (clickedElement.tagName === "LI" && !(clickedElement.classList.contains("missing-item"))) {
+        const key = clickedElement.dataset.key;
+        mainDb.loadSheetToDom(key, sheetWrap, selectWrap, spriteWrap);
     }
-    const input = await readFileAsync(file);
-    const spriteList = input.split("name: ");
-    const output = [];
-    for (let i = 1; i < spriteList.length; ++i) {
-        const allLines = spriteList[i].split("\n");
-        const meta = {
-            name: allLines[0],
-            x: parseInt(allLines[3].split("x: ")[1]),
-            y: parseInt(allLines[4].split("y: ")[1]),
-            width: parseInt(allLines[5].split("width: ")[1]),
-            height: parseInt(allLines[6].split("height: ")[1])
-        };
-        meta.y = loadedSheet.naturalHeight - (meta.y + meta.height);
-        output.push(meta);
-    }
-    return output;
-}
-const spriteDropDown = byId("sprite-selection");
-const selectedSprite = byId("sprite-canvas-wrap");
-const loadedSheet = byId("loaded-sprite-sheet");
-const reloadBtn = byId("reload-button");
-const cont = byId("cont");
-const imageArea = byId("image-area");
-let metaArr = null;
-let currentSpriteIndex = 0;
-const dataEvent = new Event("change");
-spriteDropDown.addEventListener("change", () => {
-    selectedSprite.innerHTML = null;
-    const currentSprite = metaArr[parseInt(spriteDropDown.value)];
-    selectedSprite.appendChild(getSpriteCanvas(loadedSheet, currentSprite));
 });
-loadedSheet.addEventListener("click", (event) => {
-    spriteDropDown.value = getClickedSpriteIndex(event, loadedSheet, metaArr).toString();
-    spriteDropDown.dispatchEvent(dataEvent);
-});
-const dropArea = byId('drop-area');
-const multiFile = byId('file-upload');
-const loadedList = byId('loaded-list');
-const donwloadArrow = byClass("upload-arrow-top")[0];
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    dropArea.addEventListener(eventName, function (e) {
+    dAEvent(eventName, (e) => {
         e.preventDefault();
         e.stopPropagation();
     });
-    loadedList.addEventListener(eventName, function (e) {
+    fLEvent(eventName, (e) => {
         e.preventDefault();
         e.stopPropagation();
     });
 });
 ['dragenter', 'dragover'].forEach(eventName => {
-    dropArea.addEventListener(eventName, () => {
+    dAEvent(eventName, () => {
         dropArea.classList.add('highlight');
-    });
-    loadedList.addEventListener(eventName, () => {
-        loadedList.classList.add('highlight');
     });
 });
 ['dragleave', 'drop'].forEach(eventName => {
-    dropArea.addEventListener(eventName, () => {
+    dAEvent(eventName, () => {
         dropArea.classList.remove('highlight');
     });
-    loadedList.addEventListener(eventName, () => {
-        loadedList.classList.remove('highlight');
-    });
 });
-dropArea.addEventListener('drop', (e) => {
-    fileEvent(e.dataTransfer.files, loadedList);
+sheetWrap.addEventListener("mousemove", event => {
+    spriteWrap.innerHTML = null;
+    const key = "sactx-4096x2048-DXT5-VisualAtlas-67fa43af";
+    spriteWrap.appendChild(mainDb.getSpriteCanvasFromCoordinates(key, event));
 });
-loadedList.addEventListener('drop', (e) => {
-    donwloadArrow.classList.add("move-arrow");
-    setTimeout(() => { donwloadArrow.classList.remove("move-arrow"); }, 250);
-    fileEvent(e.dataTransfer.files, loadedList);
-});
-multiFile.addEventListener("change", () => {
-    fileEvent(multiFile.files, loadedList);
-});
-dropArea.addEventListener("click", () => {
-    multiFile.click();
-});
-loadedList.addEventListener("click", (event) => {
-    const clickedElement = event.target;
-    if (clickedElement.tagName === "LI" && !(clickedElement.classList.contains("missing-item"))) {
-        const index = Array.from(loadedList.children).indexOf(clickedElement);
-        const currentPair = pairArr[index];
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            if (e.target.result) {
-                loadedSheet.src = e.target.result;
-            }
-        };
-        reader.readAsDataURL(currentPair.img);
-        quickReader(currentPair.meta).then(value => {
-            metaArr = value;
-            metaArr.sort((a, b) => (a.x > b.x) ? 1 :
-                (b.x > a.x) ? -1 :
-                    (a.y > b.y) ? 1 :
-                        (b.y > a.y) ? -1 :
-                            0);
-            selectedSprite.innerHTML = null;
-            spriteDropDown.innerHTML = null;
-            for (const index in metaArr) {
-                const selection = document.createElement("option");
-                selection.value = index;
-                selection.text = metaArr[index].name;
-                spriteDropDown.add(selection);
-            }
-            spriteDropDown.dispatchEvent(dataEvent);
-        });
-    }
-});
-const spriteArea = byId("area1");
-const sheet = byId("main-img");

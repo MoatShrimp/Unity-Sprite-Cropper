@@ -1,10 +1,7 @@
-sheetDb.prototype.addLiToUl = function (ulElement:HTMLUListElement) {
+sheetDb.prototype.addLiToUl = function (this:SheetDB, ulElement:HTMLUListElement) {
 
-    ulElement.innerHTML = null;    
-
-    for (const key of Object.keys(this)) {
-        ulElement.appendChild(this[key].liElement);
-    }
+    ulElement.innerHTML = null;
+    Object.values(this).forEach( (sheet:Sheet) => { ulElement.appendChild(sheet.liElement); });
 
     return this;
 }

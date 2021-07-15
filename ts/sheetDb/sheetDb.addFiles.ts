@@ -1,4 +1,4 @@
-sheetDb.prototype.addFiles = function (files:FileList) {
+sheetDb.prototype.addFiles = function (this:SheetDB, files:FileList) {
 
     const newSheet = this.newSheet;
 

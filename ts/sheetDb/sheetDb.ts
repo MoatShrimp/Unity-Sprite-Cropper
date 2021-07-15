@@ -8,8 +8,7 @@ interface Meta {
 
 interface Sheet {
     imgFile:File,
-    metaFile:File,
-    imgData:String,    
+    metaFile:File,   
     metaData:Meta[],
     imageElement:HTMLImageElement,
     selectElement:HTMLSelectElement,
@@ -28,9 +27,10 @@ interface SheetDB {
     getSpriteCanvas:Function,
     getSpriteCanvasFromSelect:Function,
     getSpriteCanvasFromCoordinates:Function,
-    loadAllData:Function,
+    readFileAsync:Function,
     loadMeta:Function,
     loadImage:Function,
+    loadAllData:Function,
     loadSheetToDom:Function,
     newSheet:Function
 }

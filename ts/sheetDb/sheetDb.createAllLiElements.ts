@@ -1,9 +1,7 @@
-sheetDb.prototype.createAllLiElements = function () {
+sheetDb.prototype.createAllLiElements = function (this:SheetDB) {
 
-    for (const key of Object.keys(this)) {
+    Object.keys(this).forEach( (key) => { this.createLiElement(key); });
 
-        this.createLiElement(key);
-    }
     return this;
 }
 

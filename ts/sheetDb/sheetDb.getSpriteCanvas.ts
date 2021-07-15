@@ -1,6 +1,6 @@
-sheetDb.prototype.getSpriteCanvasFromSelect = function (key, meta) {
+sheetDb.prototype.getSpriteCanvas = function (this:SheetDB, key:string, meta:Meta) {
 
-    const sheet = this[key];
+    const sheet:Sheet = this[key];
 
     if (!sheet.imageElement) { return; }
     
@@ -9,11 +9,13 @@ sheetDb.prototype.getSpriteCanvasFromSelect = function (key, meta) {
 	canvas.height = meta.height;
 
     const ctx = canvas.getContext('2d');
+    //Inverting y-axix to match drawImage
+    const yInverted = sheet.imageElement.naturalHeight - (meta.y + meta.height);
 
     ctx.drawImage(
         sheet.imageElement,
 		meta.x,
-		meta.y,
+		yInverted,
 		meta.width,
 		meta.height,
 		0,

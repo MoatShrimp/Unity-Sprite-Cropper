@@ -1,40 +1,28 @@
-sheetDb.prototype.loadMeta = async function (key:string) {
+sheetDb.prototype.loadMeta = async function (this:SheetDB, key:string) {
 
-    const sheet = this[key];
+    const sheet:Sheet = this[key];
     if (!sheet.metaFile) { return null; }
 
-    function readFileAsync(file) {
-        return new Promise<string>((resolve, reject) => {
-
-            const reader = new FileReader();
-            
-            reader.onload = () => { resolve(<string>reader.result); };
-            reader.onerror = reject;
-
-            reader.readAsText(file);
-        });
-    }    
-
-    const input:string = await readFileAsync(sheet.metaFile);
-    const spriteList = input.split("name: ");
+    const metaDataStringified:string = await this.readFileAsync(sheet.metaFile, false);
+    const metaEntries = metaDataStringified.split("name: ");//each entry always starts with "name: "
 
     const metaArr:Meta[] = [];
 
-    for (let i = 1; i < spriteList.length; ++i) {
+    //Skipping first entry of spriteList since that only contains excess data
+    for (let i = 1; i < metaEntries.length; ++i) {
 
-        const allLines = spriteList[i].split("\n");
+        const allLines = metaEntries[i].split("\n");
         const meta = {
             name: allLines[0],
             x: parseInt(allLines[3].split("x: ")[1]),
             y: parseInt(allLines[4].split("y: ")[1]),
             width: parseInt(allLines[5].split("width: ")[1]),
             height: parseInt(allLines[6].split("height: ")[1])
-        };
-
-        meta.y = sheet.imageElement.height - (meta.y + meta.height);
+        };               
         metaArr.push(meta);
     }
     
+    //sort array by coordinates
     metaArr.sort((a,b) => 
         (a.x > b.x) ? 1 :
         (b.x > a.x) ? -1 :

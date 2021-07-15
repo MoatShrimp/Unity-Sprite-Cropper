@@ -1,11 +1,11 @@
-sheetDb.prototype.getSpriteCanvasFromSelect = function (key) {
+sheetDb.prototype.getSpriteCanvasFromSelect = function (this:SheetDB, key:string):HTMLCanvasElement {
 
-    const sheet = this[key];
+    const sheet:Sheet = this[key];
 
     if (!sheet.selectElement) { return; }
-
+    
     const index = parseInt(sheet.selectElement.value);
-    const meta = sheet.metaDataAlphaDecending[index];
+    const meta = sheet.metaData[index];
 
     return this.getSpriteCanvas(key, meta);
 }

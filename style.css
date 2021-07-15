@@ -257,8 +257,11 @@ h2 {
 */
 
 #image-area {
-	transition: 0.5s;
-	transition-timing-function: ease-in-out;	
+	transition: 0.1s;
+	transition-timing-function: ease-in-out;
+	width: auto;
+	flex-grow: 1;
+	opacity: 1;
 }
 
 
@@ -270,7 +273,9 @@ h2 {
 }
 
 
-
+.sprite-sheet-wrap > img {
+	height:auto;
+}
 .sheet-box{
 	padding: 0.5em;
 	border-radius: 10px;
@@ -305,12 +310,13 @@ img {
 	height:auto;
 }
 
-.image-area-unloaded {
+#image-area.image-area-unloaded {
+	flex-grow: 0;
 	width:0;
 	opacity:0;
 }
 .image-area-loaded {
-	width:auto;
+	
 	flex-grow: 1;
 	opacity:1;
 }

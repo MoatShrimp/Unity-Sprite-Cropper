@@ -1,13 +1,12 @@
-sheetDb.prototype.createSelectElement = function (key) {
+sheetDb.prototype.createSelectElement = function (this:SheetDB, key:string) {
 
-    const sheet = this[key];
-    const metaData:Meta[] = sheet.metaData;
+    const sheet:Sheet = this[key];
+    const metaData = sheet.metaData;
 
-    if(!metaData || sheet.selectElement) {   return this;  }    
+    if(!metaData || sheet.selectElement) {   return this;  }
 
     const options = metaData.map((value, index) => new Option( value.name, index.toString() ));
-
-    //sort options alphabetical
+    //sort options array alphabetically for ease-of-access
     options.sort( (a,b) => 
         (a.text > b.text) ? 1:
         (a.text < b.text) ? -1:
@@ -15,9 +14,8 @@ sheetDb.prototype.createSelectElement = function (key) {
     )
 
     const select = document.createElement("select");
-    select.classList.add("js-meta-select");
-    options.forEach(option => { select.add(option)    });
-    this[key].selectElement = select;
+    options.forEach(option => { select.add(option); });
+    sheet.selectElement = select;
 
     return this;
 }

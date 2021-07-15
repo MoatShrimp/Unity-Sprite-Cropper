@@ -1,27 +1,11 @@
-sheetDb.prototype.loadImage = async function (key:string) {
+sheetDb.prototype.loadImage = async function (this:SheetDB, key:string) {
 
-    const sheet = this[key];
+    const sheet:Sheet = this[key];
     if (!sheet.imgFile) { return null; }
-
-    function readFileAsync(file) {
-        return new Promise<string>((resolve, reject) => {
-
-            const reader = new FileReader();
-            
-            reader.onload = () => { resolve(<string>reader.result); };
-            reader.onerror = reject;
-
-            reader.readAsDataURL(file);
-        });
-    }
     
-    const imageSrc:string = await readFileAsync(sheet.imgFile);
-    sheet.imgData = imageSrc;
-    const image = new Image();
-    image.classList.add("js-sheet-image");
-    image.src = imageSrc;
+    const image = new Image();    
+    image.src = await this.readFileAsync(sheet.imgFile, true);
     await image.decode();
-
     
     return image;
 }

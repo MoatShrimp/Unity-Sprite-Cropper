@@ -1,5 +1,5 @@
-sheetDb.prototype.getFirstLoaded = function () {
+sheetDb.prototype.getFirstLoaded = function (this:SheetDB) {
 
-    const foundKey = Object.keys(this).find( key => this[key].imgData);
-    return this[foundKey];
+    const foundSheet:Sheet = Object.values(this).find( (sheet:Sheet) => sheet.imageElement);
+    return foundSheet;
 }

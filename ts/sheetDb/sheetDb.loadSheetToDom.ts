@@ -1,20 +1,18 @@
 sheetDb.prototype.loadSheetToDom = function (
+    this:SheetDB,
     key:string,
-    sheetArea:HTMLImageElement, 
-    spriteSelect:HTMLDivElement, 
-    spriteCanvasArea:HTMLDivElement) {     
+    sheetWrap:HTMLDivElement,
+    selectWrap:HTMLDivElement,
+    spriteWrap:HTMLSpanElement,) {     
         
-        const sheet = this[key];
-        
-        const newImage = sheet.imageElement;
-        sheetArea.parentNode.replaceChild(newImage, sheetArea);
-        sheetArea = newImage;
+        const sheet:Sheet = this[key];
 
-        const newSelect = sheet.selectElement;
-        spriteSelect.parentNode.replaceChild(newSelect, spriteSelect);
-        spriteSelect = newSelect;
+        sheetWrap.innerHTML = null;
+        sheetWrap.appendChild(sheet.imageElement);
 
-        spriteCanvasArea.innerHTML = null;
-        spriteCanvasArea.appendChild( this.getSpriteCanvasFromSelect(key) );
+        selectWrap.innerHTML = null;
+        selectWrap.appendChild(sheet.selectElement);
 
+        spriteWrap.innerHTML = null;
+        spriteWrap.appendChild(this.getSpriteCanvasFromSelect(key));
 }

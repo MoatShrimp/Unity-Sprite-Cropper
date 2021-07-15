@@ -26,9 +26,11 @@
 					<div class="box-header">
 						<h2>Loaded Sprite</h2>
 						—
-						<select id="sprite-selection" name="sprite-selection">
-							<option>No sprite sheet loaded</option>
-						</select>
+						<span class="js-select-wrap">
+							<select id="sprite-selection" class="js-sprite-select" name="sprite-selection">
+								<option>No sprite sheet loaded</option>
+							</select>
+						</span>
 					</div>
 					
 					<div class="box-main">
@@ -37,20 +39,22 @@
 							Filesize<br>
 							DImensions
 						</div>
-						<div id="sprite-canvas-wrap" class="checkerboard"></div>						
+						<div id="sprite-canvas-wrap" class="checkerboard js-sprite-wrap">
+							<canvas class="js-sprite-canvas"></canvas>
+						</div>						
 					</div>	
 
 				</div>
 
 				<div id="drop-box" class="box box-main no-header">
-					<form id="drop-area">
+					<form id="drop-area" class="js-drop-area">
 						<div class="upload-arrow">
 							<img class="upload-arrow-top" src="img/arrow.svg" alt="Upload">
 							<img class="upload-arrow-bottom" src="img/bucket.svg" alt="Upload">
 						</div>
 						
 						<h3>Click to upload or drag-and-drop your image and meta files here</h3>
-						<input type="file" id="file-upload" multiple accept=".png, .meta">
+						<input type="file" id="file-upload" class="js-file-upload" multiple accept=".png, .meta">
 					</form>
 				</div>
 
@@ -62,13 +66,13 @@
 						<h2>Loaded Files</h2>
 					</div>
 
-					<ul id="loaded-list" class="box-main no-margin no-padding"></ul>
+					<ul id="loaded-list" class="box-main no-margin no-padding js-file-list"></ul>
 
 				</div>
 
 			</section>
 
-			<section id="image-area" class="image-area-unloaded">
+			<section id="image-area" class="image-area-unloaded js-image-area">
 				<div class="image-area-wrap">
 
 					<div class="box loaded-sheet">
@@ -78,8 +82,8 @@
 						</div>
 
 						<div class="box-main">
-							<div class="sprite-sheet-wrap checkerboard">
-								<img id="loaded-sprite-sheet">
+							<div class="sprite-sheet-wrap checkerboard js-sheet-wrap">
+								<img id="loaded-sprite-sheet" class="js-sheet-image">
 							</div>
 						</div>
 					</div>
