@@ -4,6 +4,7 @@ const selectedSprite:HTMLDivElement = byId("sprite-canvas-wrap");
 const loadedSheet:HTMLImageElement = byId("loaded-sprite-sheet");
 const reloadBtn:HTMLButtonElement = byId("reload-button");
 const cont:HTMLDivElement = byId("cont");
+const imageArea = byId("image-area");
 
 //main array for storing SpriteMeta
 let metaArr:SpriteMeta[] = null;
@@ -61,18 +62,26 @@ const donwloadArrow:HTMLImageElement = byClass("upload-arrow-top")[0];
 
 
 
-dropArea.addEventListener('drop', (e) => {	
-	manageFiles(e.dataTransfer.files);	
+dropArea.addEventListener('drop', (e) => {
+	
+	fileEvent(e.dataTransfer.files, loadedList);
+
+	//manageFiles(e.dataTransfer.files);	
 });
 loadedList.addEventListener('drop', (e) => {	
 	donwloadArrow.classList.add("move-arrow");
 	setTimeout(() => {  donwloadArrow.classList.remove("move-arrow"); }, 250);
-	manageFiles(e.dataTransfer.files);
+
+	fileEvent(e.dataTransfer.files, loadedList);
+
+	//manageFiles(e.dataTransfer.files);
 
 });
 
 multiFile.addEventListener("change", () => {
-	manageFiles(multiFile.files);
+
+	fileEvent(multiFile.files, loadedList);
+	//manageFiles(multiFile.files);
 });
 
 dropArea.addEventListener("click", () => {
@@ -123,53 +132,7 @@ loadedList.addEventListener("click", (event) => {
 
 
 
-const imageArea = byId("image-area");
+
 const spriteArea = byId("area1");
 const sheet = byId("main-img");
-let move = false;
-let stopping = true;
 
-const drag = byId("drag-up-down");
-let yCoor = null;
-
-imageArea.addEventListener("mousemove", (event) => {
-    yCoor = event.clientY;
-});
-
-function movingLoop(startY) {
-
-	const current = yCoor
-	const min = 200;
-	const max = document.documentElement.clientHeight - min - (min/2);
-
-	if (yCoor > min && yCoor < max) {
-		const oldHeigth = 
-			getComputedStyle(document.documentElement)
-				.getPropertyValue('--top-height')
-					.slice(0, -2);
-
-		const delta = startY - current;
-		let newHeight = parseInt(oldHeigth) - delta;
-		newHeight =  
-			newHeight > min && newHeight < max ? newHeight :
-			newHeight > min ? max :
-			min;
-
-		document.documentElement.style.setProperty('--top-height', `${newHeight}px`);
-		document.documentElement.style.setProperty('--bottom-height',
-			`${document.documentElement.clientHeight - newHeight -150}px`);
-	}
-	if (stopping === false) {
-		requestAnimationFrame(() => {movingLoop(current)});
-	}
-}
-
-let trialInt = null;
-drag.addEventListener("mousedown", event => {
-	stopping = false;
-	trialInt = window.requestAnimationFrame(() => {movingLoop(event.clientY);});	
-});
-
-document.addEventListener("mouseup", () => {
-	stopping = true;
-});

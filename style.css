@@ -198,9 +198,6 @@ h2 {
 	}
 
 
-#file-area > #loaded-files > #loaded-list:empty {
-
-}
 
 /*minimizig of the dorp area on sprit3e shet expansion*/
 
@@ -264,8 +261,7 @@ h2 {
 	transition-timing-function: ease-in-out;	
 }
 
-#sprite-canvas-wrap {	
-}
+
 
 #sprite-canvas-wrap > canvas {
 	max-height:100%;

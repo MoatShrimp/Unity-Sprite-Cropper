@@ -1,22 +1,24 @@
-async function quickReader(file:File) {
+sheetDb.prototype.loadMeta = async function (key:string) {
+
+    const sheet = this[key];
+    if (!sheet.metaFile) { return null; }
 
     function readFileAsync(file) {
         return new Promise<string>((resolve, reject) => {
+
             const reader = new FileReader();
             
-            reader.onload = () => {
-                resolve(<string>reader.result);
-            };
+            reader.onload = () => { resolve(<string>reader.result); };
             reader.onerror = reject;
+
             reader.readAsText(file);
-
         });
-    }
+    }    
 
-    const input:string = await readFileAsync(file);
+    const input:string = await readFileAsync(sheet.metaFile);
     const spriteList = input.split("name: ");
 
-    const output = [];
+    const metaArr:Meta[] = [];
 
     for (let i = 1; i < spriteList.length; ++i) {
 
@@ -29,10 +31,17 @@ async function quickReader(file:File) {
             height: parseInt(allLines[6].split("height: ")[1])
         };
 
-        meta.y = loadedSheet.naturalHeight - (meta.y + meta.height);
-        output.push(meta);
+        meta.y = sheet.imageElement.height - (meta.y + meta.height);
+        metaArr.push(meta);
     }
     
-    return output
+    metaArr.sort((a,b) => 
+        (a.x > b.x) ? 1 :
+        (b.x > a.x) ? -1 :
+        (a.y > b.y) ? 1 :
+        (b.y > a.y) ? -1 :
+        0
+    );
 
+    return metaArr;
 }

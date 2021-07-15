@@ -100,6 +100,78 @@ function quickDownload(sheet, metaArr, folderName) {
         saveAs(blob, `${folderName}.zip`);
     });
 }
+function addNewFiles(files, pairs) {
+    for (const file of Array.from(files)) {
+        const name = file.name;
+        const namepair = {
+            img: file.name
+        };
+        if ((name.slice(-4).toLowerCase() === ".png") &&
+            !(pairs.some(pair => { var _a; return ((_a = pair.img) === null || _a === void 0 ? void 0 : _a.name) === name; }))) {
+            const index = pairs.findIndex(pair => { var _a; return ((_a = pair.meta) === null || _a === void 0 ? void 0 : _a.name.slice(0, -5)) === name; });
+            if (index > -1) {
+                pairs[index].img = file;
+            }
+            else {
+                pairs.push({ img: file, meta: null });
+            }
+        }
+        else if ((name.slice(-5).toLowerCase() === ".meta") &&
+            !(pairs.some(pair => { var _a; return ((_a = pair.meta) === null || _a === void 0 ? void 0 : _a.name) === name; }))) {
+            const index = pairs.findIndex(pair => { var _a; return ((_a = pair.img) === null || _a === void 0 ? void 0 : _a.name.slice(0, -4)) === name; });
+            if (index > -1) {
+                pairs[index].img = file;
+            }
+            else {
+                pairs.push({ img: null, meta: file });
+            }
+        }
+    }
+    return pairs;
+}
+function updateFileList(pairs, list) {
+    list.innerHTML = null;
+    for (const pair of pairs) {
+        const item = document.createElement("li");
+        item.textContent = pair.img ? pair.img.name.slice(0, -4) : pair.meta.name.slice(0, -5);
+        if (!pair.img) {
+            item.title = "Missing image file";
+            item.classList.add("missing-item");
+        }
+        else if (!pair.meta) {
+            item.title = "Missing meta file";
+            item.classList.add("missing-item");
+        }
+        list.appendChild(item);
+    }
+}
+function loadData(pairs, loaded) {
+    for (const pair of pairs) {
+        if (pair.img && pair.meta && !(loaded.some(entry => entry.name === pair.img.name))) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                if (e.target.result) {
+                    const src = e.target.result;
+                    quickReader(pair.meta).then(value => {
+                        let meta = value;
+                        meta.sort((a, b) => (a.x > b.x) ? 1 :
+                            (b.x > a.x) ? -1 :
+                                (a.y > b.y) ? 1 :
+                                    (b.y > a.y) ? -1 :
+                                        0);
+                        loaded.push({
+                            name: pair.img.name,
+                            img: src,
+                            meta: meta
+                        });
+                    });
+                }
+            };
+            reader.readAsDataURL(pair.img);
+        }
+    }
+    return loaded;
+}
 const pairArr = [];
 const loaded = [];
 function manageFiles(files) {
@@ -170,6 +242,241 @@ function manageFiles(files) {
         imageArea.classList = ["image-area-loaded"];
     }
 }
+;
+function sheetDb() { }
+const mainDb = new sheetDb();
+sheetDb.prototype.newSheet = function (img = null, meta = null) {
+    return {
+        imgFile: img,
+        metaFile: meta,
+        imgData: null,
+        metaData: [],
+        imageElement: null,
+        selectElement: null,
+        liElement: null
+    };
+};
+sheetDb.prototype.loadMeta = async function (key) {
+    const sheet = this[key];
+    if (!sheet.metaFile) {
+        return null;
+    }
+    function readFileAsync(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => { resolve(reader.result); };
+            reader.onerror = reject;
+            reader.readAsText(file);
+        });
+    }
+    const input = await readFileAsync(sheet.metaFile);
+    const spriteList = input.split("name: ");
+    const metaArr = [];
+    for (let i = 1; i < spriteList.length; ++i) {
+        const allLines = spriteList[i].split("\n");
+        const meta = {
+            name: allLines[0],
+            x: parseInt(allLines[3].split("x: ")[1]),
+            y: parseInt(allLines[4].split("y: ")[1]),
+            width: parseInt(allLines[5].split("width: ")[1]),
+            height: parseInt(allLines[6].split("height: ")[1])
+        };
+        meta.y = sheet.imageElement.height - (meta.y + meta.height);
+        metaArr.push(meta);
+    }
+    metaArr.sort((a, b) => (a.x > b.x) ? 1 :
+        (b.x > a.x) ? -1 :
+            (a.y > b.y) ? 1 :
+                (b.y > a.y) ? -1 :
+                    0);
+    return metaArr;
+};
+sheetDb.prototype.loadImage = async function (key) {
+    const sheet = this[key];
+    if (!sheet.imgFile) {
+        return null;
+    }
+    function readFileAsync(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => { resolve(reader.result); };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+    const imageSrc = await readFileAsync(sheet.imgFile);
+    sheet.imgData = imageSrc;
+    const image = new Image();
+    image.classList.add("js-sheet-image");
+    image.src = imageSrc;
+    await image.decode();
+    return image;
+};
+sheetDb.prototype.createLiElement = function (key) {
+    const sheet = this[key];
+    if (sheet.liElement) {
+        return this;
+    }
+    const item = document.createElement("li");
+    item.textContent = key;
+    item.dataset.key = key;
+    if (!sheet.imgFile) {
+        item.title = "Missing image file";
+    }
+    else if (!sheet.metaFile) {
+        item.title = "Missing meta file";
+    }
+    sheet.liElement = item;
+    return this;
+};
+sheetDb.prototype.createAllLiElements = function () {
+    for (const key of Object.keys(this)) {
+        this.createLiElement(key);
+    }
+    return this;
+};
+sheetDb.prototype.removeLiTitle = function (key) {
+    const sheet = this[key];
+    if (!sheet.liObject) {
+        return this;
+    }
+    sheet.liObject.title = null;
+    return this;
+};
+sheetDb.prototype.createSelectElement = function (key) {
+    const sheet = this[key];
+    const metaData = sheet.metaData;
+    if (!metaData || sheet.selectElement) {
+        return this;
+    }
+    const options = metaData.map((value, index) => new Option(value.name, index.toString()));
+    options.sort((a, b) => (a.text > b.text) ? 1 :
+        (a.text < b.text) ? -1 :
+            0);
+    const select = document.createElement("select");
+    select.classList.add("js-meta-select");
+    options.forEach(option => { select.add(option); });
+    this[key].selectElement = select;
+    return this;
+};
+sheetDb.prototype.addFiles = function (files) {
+    const newSheet = this.newSheet;
+    for (const file of Array.from(files)) {
+        const name = file.name;
+        const ext = name.slice((name.lastIndexOf(".") - 1 >>> 0) + 2);
+        const isPng = (ext === "png");
+        const isMeta = (ext === "meta");
+        if (!(isPng || isMeta)) {
+            continue;
+        }
+        if (isPng) {
+            const key = name.slice(0, -4);
+            if (this[key]) {
+                if (this[key].imgFile) {
+                    continue;
+                }
+                this[key].imgFile = file;
+            }
+            else {
+                this[key] = newSheet(file, null);
+            }
+        }
+        else {
+            const key = name.slice(0, -9);
+            if (this[key]) {
+                if (this[key].metaFile) {
+                    continue;
+                }
+                this[key].metaFile = file;
+            }
+            else {
+                this[key] = newSheet(null, file);
+            }
+        }
+    }
+    this.createAllLiElements();
+    return this;
+};
+sheetDb.prototype.addLiToUl = function (ulElement) {
+    ulElement.innerHTML = null;
+    for (const key of Object.keys(this)) {
+        ulElement.appendChild(this[key].liElement);
+    }
+    return this;
+};
+sheetDb.prototype.loadAllData = function (display, select) {
+    for (const key of Object.keys(this)) {
+        const sheet = this[key];
+        if (sheet.imgData || !(sheet.imgFile && sheet.metaFile)) {
+            continue;
+        }
+        this.loadImage(key).then(image => {
+            sheet.imageElement = image;
+            this.loadMeta(key).then(metaArr => {
+                sheet.metaData = metaArr;
+                this.createSelectElement(key);
+            });
+        });
+    }
+};
+sheetDb.prototype.getFirstLoaded = function () {
+    const foundKey = Object.keys(this).find(key => this[key].imgData);
+    return this[foundKey];
+};
+sheetDb.prototype.getSpriteCanvasFromSelect = function (key, meta) {
+    const sheet = this[key];
+    if (!sheet.imageElement) {
+        return;
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = meta.width;
+    canvas.height = meta.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(sheet.imageElement, meta.x, meta.y, meta.width, meta.height, 0, 0, meta.width, meta.height);
+    return canvas;
+};
+sheetDb.prototype.getSpriteCanvasFromSelect = function (key) {
+    const sheet = this[key];
+    if (!sheet.selectElement) {
+        return;
+    }
+    const index = parseInt(sheet.selectElement.value);
+    const meta = sheet.metaDataAlphaDecending[index];
+    return this.getSpriteCanvas(key, meta);
+};
+sheetDb.prototype.getSpriteCanvasFromCoordinates = function (key, x, y) {
+    const sheet = this[key];
+    const meta = sheet.metaData.find(meta => {
+        x >= meta.x &&
+            y >= meta.y &&
+            x <= meta.x + meta.width &&
+            y <= meta.y + meta.height;
+    });
+    return this.getSpriteCanvas(key, meta);
+};
+sheetDb.prototype.loadSheetToDom = function (key, sheetArea, spriteSelect, spriteCanvasArea) {
+    const sheet = this[key];
+    const newImage = sheet.imageElement;
+    sheetArea.parentNode.replaceChild(newImage, sheetArea);
+    sheetArea = newImage;
+    const newSelect = sheet.selectElement;
+    spriteSelect.parentNode.replaceChild(newSelect, spriteSelect);
+    spriteSelect = newSelect;
+    spriteCanvasArea.innerHTML = null;
+    spriteCanvasArea.appendChild(this.getSpriteCanvasFromSelect(key));
+};
+function fileEvent(files, ul) {
+    mainDb.addFiles(files)
+        .addLiToUl(ul)
+        .loadAllData(loadedSheet, spriteDropDown);
+    if (ul.childNodes.length && imageArea.classList.contains("image-area-unloaded")) {
+        imageArea.classList.remove("image-area-unloaded");
+    }
+    else if (!(ul.childNodes.length || imageArea.classList.contains("image-area-unloaded"))) {
+        imageArea.src = null;
+        imageArea.classList.add("image-area-unloaded");
+    }
+}
 async function quickReader(file) {
     function readFileAsync(file) {
         return new Promise((resolve, reject) => {
@@ -203,6 +510,7 @@ const selectedSprite = byId("sprite-canvas-wrap");
 const loadedSheet = byId("loaded-sprite-sheet");
 const reloadBtn = byId("reload-button");
 const cont = byId("cont");
+const imageArea = byId("image-area");
 let metaArr = null;
 let currentSpriteIndex = 0;
 const dataEvent = new Event("change");
@@ -246,15 +554,15 @@ const donwloadArrow = byClass("upload-arrow-top")[0];
     });
 });
 dropArea.addEventListener('drop', (e) => {
-    manageFiles(e.dataTransfer.files);
+    fileEvent(e.dataTransfer.files, loadedList);
 });
 loadedList.addEventListener('drop', (e) => {
     donwloadArrow.classList.add("move-arrow");
     setTimeout(() => { donwloadArrow.classList.remove("move-arrow"); }, 250);
-    manageFiles(e.dataTransfer.files);
+    fileEvent(e.dataTransfer.files, loadedList);
 });
 multiFile.addEventListener("change", () => {
-    manageFiles(multiFile.files);
+    fileEvent(multiFile.files, loadedList);
 });
 dropArea.addEventListener("click", () => {
     multiFile.click();
@@ -290,42 +598,5 @@ loadedList.addEventListener("click", (event) => {
         });
     }
 });
-const imageArea = byId("image-area");
 const spriteArea = byId("area1");
 const sheet = byId("main-img");
-let move = false;
-let stopping = true;
-const drag = byId("drag-up-down");
-let yCoor = null;
-imageArea.addEventListener("mousemove", (event) => {
-    yCoor = event.clientY;
-});
-function movingLoop(startY) {
-    const current = yCoor;
-    const min = 200;
-    const max = document.documentElement.clientHeight - min - (min / 2);
-    if (yCoor > min && yCoor < max) {
-        const oldHeigth = getComputedStyle(document.documentElement)
-            .getPropertyValue('--top-height')
-            .slice(0, -2);
-        const delta = startY - current;
-        let newHeight = parseInt(oldHeigth) - delta;
-        newHeight =
-            newHeight > min && newHeight < max ? newHeight :
-                newHeight > min ? max :
-                    min;
-        document.documentElement.style.setProperty('--top-height', `${newHeight}px`);
-        document.documentElement.style.setProperty('--bottom-height', `${document.documentElement.clientHeight - newHeight - 150}px`);
-    }
-    if (stopping === false) {
-        requestAnimationFrame(() => { movingLoop(current); });
-    }
-}
-let trialInt = null;
-drag.addEventListener("mousedown", event => {
-    stopping = false;
-    trialInt = window.requestAnimationFrame(() => { movingLoop(event.clientY); });
-});
-document.addEventListener("mouseup", () => {
-    stopping = true;
-});
